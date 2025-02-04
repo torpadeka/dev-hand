@@ -1,12 +1,9 @@
-import { neon } from "@neondatabase/serverless";
-
-async function getData() {
-    const sql = neon(process.env.DATABASE_URL!);
-    const response = await sql`SELECT version()`;
-    return response[0].version;
-}
+import { db } from "@/db";
+import * as schema from "@/schema";
 
 export default async function Home() {
-    const data = await getData();
-    return <>{data}</>;
+    const result = await db.select().from(schema.usersTable);
+    return <>{result.map((data) => 
+        <>{data.id}</>
+    )}</>;
 }

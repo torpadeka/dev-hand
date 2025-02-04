@@ -8,45 +8,59 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false);
 
   async function askAzureOpenAI(question: any) {
-    const response = await fetch(
-      "https://aiblecvmaker.openai.azure.com/openai/deployments/aiblecvmaker/chat/completions?api-version=2024-05-01-preview",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": "ba834e6a110d48309a37c4dc93d3b93d",
-        },
-        body: JSON.stringify({
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a chatbot that I want to place on a forum-like website, so you need to answer questions related to programming.",
-            },
-            {
-              role: "user",
-              content:
-                "Answer simply, effectively, and politely. Stay on topic.",
-            },
-            { role: "user", content: question },
-          ],
-        }),
-      }
-    );
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.NEXT_PUBLIC_AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=2024-05-01-preview`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "api-key": process.env.NEXT_PUBLIC_AZURE_OPENAI_API_KEY || "",
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a chatbot that I want to place on a forum-like website, so you need to answer questions related to programming.",
+              },
+              {
+                role: "user",
+                content:
+                  "Answer simply, effectively, and politely. Stay on topic.",
+              },
+              { role: "user", content: question },
+            ],
+            temperature: 0.7,
+            top_p: 0.95,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+          }),
+        }
+      );
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+      const data = await response.json();
+
+      if (data.choices && data.choices.length > 0) {
+        return data.choices[0].message.content;
+      } else {
+        return "No response from AI.";
+      }
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+      return "Error fetching AI response.";
+    }
   }
 
   const handleAsk = () => {
-    if (!question.trim()) return;
+    if (!question.trim()) return; // Prevent empty questions
 
     setLoading(true);
-    setAnswer("");
+    setAnswer("Thinking..."); // Indicate loading state
 
-    const answer = askAzureOpenAI(question)
+    askAzureOpenAI(question)
       .then((answer) => setAnswer(answer))
-      .catch((err) => console.error("Error:", err))
+      .catch(() => setAnswer("Error: Unable to get response."))
       .finally(() => setLoading(false));
   };
 

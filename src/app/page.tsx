@@ -1,9 +1,9 @@
-import { db } from "@/db";
-import * as schema from "@/schema";
+import Navbar from "@/components/Navbar";
 
 export default async function Home() {
-    const result = await db.select().from(schema.usersTable);
-    return <>{result.map((data) => 
-        <>{data.id}</>
-    )}</>;
+    return (
+        <div className="w-screen h-screen bg-black">
+            <Navbar></Navbar>
+        </div>
+    );
 }

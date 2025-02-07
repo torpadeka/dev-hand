@@ -16,9 +16,9 @@ export default {
             colors: {
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
-                card: {
-                    DEFAULT: "hsl(var(--card))",
-                    foreground: "hsl(var(--card-foreground))",
+                button: {
+                    DEFAULT: "hsl(var(--button))",
+                    foreground: "hsl(var(--button-foreground))",
                 },
                 popover: {
                     DEFAULT: "hsl(var(--popover))",
@@ -46,7 +46,7 @@ export default {
                 },
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
-                ring: "hsl(var(--ring))",
+                logo: "hsl(var(--logo))",
                 chart: {
                     "1": "hsl(var(--chart-1))",
                     "2": "hsl(var(--chart-2))",

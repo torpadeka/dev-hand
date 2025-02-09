@@ -16,6 +16,7 @@ export const usersTable = pgTable("users", {
     created_at: date({ mode: "date" }).notNull().defaultNow(),
     updated_at: date({ mode: "date" })
         .notNull()
+        .defaultNow()
         .$onUpdate(() => new Date()),
 });
 
@@ -57,9 +58,7 @@ export const userBadgesTable = pgTable("userbadges", {
     user_id: char({ length: 5 })
         .primaryKey()
         .references(() => usersTable.user_id),
-    badge_id: char({ length: 5 })
-        .primaryKey()
-        .references(() => badgesTable.badge_id),
+    badge_id: char({ length: 5 }).references(() => badgesTable.badge_id),
     awarded_at: date({ mode: "date" }).notNull().defaultNow(),
 });
 
@@ -118,9 +117,9 @@ export const threadCategoriesTable = pgTable("threadcategories", {
     thread_id: char({ length: 5 })
         .primaryKey()
         .references(() => threadsTable.thread_id),
-    category_id: char({ length: 5 })
-        .primaryKey()
-        .references(() => categoriesTable.category_id),
+    category_id: char({ length: 5 }).references(
+        () => categoriesTable.category_id
+    ),
 });
 
 export type InsertThreadCategory = typeof threadCategoriesTable.$inferInsert;
@@ -144,11 +143,11 @@ export const subThreadsTable = pgTable("subthreads", {
 export type InsertSubThread = typeof subThreadsTable.$inferInsert;
 export type SelectSubThread = typeof subThreadsTable.$inferSelect;
 
-export const repliesTable = pgTable("repies", {
+export const repliesTable = pgTable("replies", {
     repy_id: char({ length: 5 }).primaryKey(),
     subthread_id: char({ length: 5 })
         .notNull()
-        .references(() => subThreadsTable.thread_id),
+        .references(() => subThreadsTable.subthread_id),
     user_id: char({ length: 5 })
         .notNull()
         .references(() => usersTable.user_id),

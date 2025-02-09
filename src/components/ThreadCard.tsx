@@ -8,7 +8,7 @@ interface ThreadCardProps {
   category: string[];
   votes: number;
   comments: number;
-  date: string;
+  createdAt: string;
 }
 
 export default function ThreadCard({
@@ -16,7 +16,7 @@ export default function ThreadCard({
   category,
   votes,
   comments,
-  date,
+  createdAt,
 }: ThreadCardProps) {
   const addUpvote = () => {
     console.log(":AAA");
@@ -52,7 +52,7 @@ export default function ThreadCard({
               <IoIosText /> {comments}
             </div>
           </div>
-          <div className="">{date}</div>
+          <div className="">{createdAt}</div>
         </div>
       </div>
     </>

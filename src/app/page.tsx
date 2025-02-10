@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import SidebarThreads from "@/components/SidebarThreads";
 import ThreadCard from "@/components/ThreadCard";
 import { IoIosBonfire, IoIosRefresh, IoIosSearch } from "react-icons/io";
+import QuestionModal from "@/components/QuestionModal";
 
 const threads = [
   {
@@ -180,6 +181,9 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="fixed bottom-4 right-4">
+        <QuestionModal />
       </div>
     </div>
   );

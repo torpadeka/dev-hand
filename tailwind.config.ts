@@ -60,6 +60,9 @@ export default {
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
             },
+            animation: {
+                "slow-bounce": "bounce 2s infinite", 
+            },
         },
     },
     plugins: [addVariablesForColors, require("tailwindcss-animate")],

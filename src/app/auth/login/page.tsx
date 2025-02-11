@@ -20,6 +20,8 @@ import {
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
+import { FaGoogle } from "react-icons/fa";
+
 const formSchema = z.object({
     email: z
         .string()
@@ -47,77 +49,107 @@ export default function Login() {
         },
     });
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const submitCredentials = async (values: z.infer<typeof formSchema>) => {
         const result = await signIn("credentials", {
             email: values.email,
             password: values.password,
             redirectTo: "/",
-            redirect: true,
         });
     };
 
+    const googleSignIn = () => {
+        signIn("google", {
+            redirectTo: "/",
+        })
+    }
+
     return (
-        <div className="w-screen h-screen flex flex-col items-center justify-center gap-4 bg-background">
-            <div className="flex flex-col items-center justify-center gap-1">
-                <Image
-                    src="/dev-hand.svg"
-                    width={60}
-                    height={60}
-                    alt="#"
-                ></Image>
-                <div className="font-bold text-2xl text-logo">Dev Hand</div>
-            </div>
-            <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="h-80 flex flex-col items-center gap-8 justify-center rounded-xl p-6 bg-primary"
-                >
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem className="h-20">
-                                <FormLabel>Username</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        className="text-primary"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                {/* <FormDescription>
+        <div className="w-screen h-screen flex items-center justify-center gap-8">
+            <div className="flex flex-col items-center justify-center gap-4 bg-background">
+                <div className="flex flex-col items-center justify-center gap-1">
+                    <Image
+                        src="/dev-hand.svg"
+                        width={60}
+                        height={60}
+                        alt="#"
+                    ></Image>
+                    <div className="font-bold text-2xl text-logo">Dev Hand</div>
+                </div>
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(submitCredentials)}
+                        className="w-64 h-96 flex flex-col items-center justify-center gap-4 rounded-xl p-6 bg-primary shadow-md"
+                    >
+                        <div className="text-2xl font-bold text-primary-foreground">
+                            Login
+                        </div>
+                        <div className="flex flex-col items-center gap-8 justify-center">
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem className="h-20">
+                                        <FormLabel className="text-primary-foreground">
+                                            Email
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                className="text-primary"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        {/* <FormDescription>
                                 This is your email.
                             </FormDescription> */}
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem className="h-20">
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        className="text-primary"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                {/* <FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem className="h-20">
+                                        <FormLabel className="text-primary-foreground">
+                                            Password
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                className="text-primary"
+                                                {...field}
+                                                type="password"
+                                            />
+                                        </FormControl>
+                                        {/* <FormDescription>
                                 This is your password.
                             </FormDescription> */}
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <Suspense>
-                        <ErrorMessage></ErrorMessage>
-                    </Suspense>
-                    <Button className="mt-4 bg-button" type="submit">
-                        Login
-                    </Button>
-                </form>
-            </Form>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="flex flex-col items-center justify-center gap-3">
+                            <Button className="mt-4 bg-button" type="submit">
+                                Login
+                            </Button>
+                            <div className="h-4">
+                                <Suspense>
+                                    <ErrorMessage></ErrorMessage>
+                                </Suspense>
+                            </div>
+                        </div>
+                    </form>
+                </Form>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-2">
+                <Button
+                    className="bg-black"
+                    onClick={googleSignIn}
+                >
+                    <FaGoogle />
+                    <div>Sign In with Google</div>
+                </Button>
+            </div>
         </div>
     );
 }

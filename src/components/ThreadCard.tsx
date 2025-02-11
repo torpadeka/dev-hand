@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import CategoryTag from "./CategoryTag";
 import { IoIosArrowUp, IoIosText } from "react-icons/io";
 
@@ -19,15 +20,16 @@ export default function ThreadCard({
   createdAt,
 }: ThreadCardProps) {
   const addUpvote = () => {
-    console.log(":AAA");
+    setVoteCount(voteCount + 1);
   };
 
+  const [voteCount, setVoteCount] = useState(votes);
   return (
     <>
       <div className="px-4 bg-primary rounded-xl flex justify-between items-center shadow-md w-full">
         <div className="w-1/12 mr-3">
           <div className="flex items-center gap-2 justify-center">
-            {votes}
+            {voteCount}
             <div
               className="hover:text-popover hover:cursor-pointer"
               onClick={addUpvote}

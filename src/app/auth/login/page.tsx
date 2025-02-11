@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,10 +30,14 @@ const formSchema = z.object({
         .max(255, { message: "Cannot exceed 255 characters!" }),
 });
 
-export default function Login() {
+function ErrorMessage() {
     const searchParams = useSearchParams();
     const error = searchParams.get("error");
 
+    return error && <div style={{ color: "red" }}>Invalid credentials!</div>;
+}
+
+export default function Login() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -95,9 +100,9 @@ export default function Login() {
                             </FormItem>
                         )}
                     />
-                    {error && (
-                        <div style={{ color: "red" }}>Invalid credentials!</div>
-                    )}
+                    <Suspense>
+                        <ErrorMessage></ErrorMessage>
+                    </Suspense>
                     <Button className="bg-button" type="submit">
                         Login
                     </Button>

@@ -19,3 +19,14 @@ export async function getUserByCredentials(
 
     return rows[0];
 }
+
+export async function getUserByEmail(
+    email: string
+): Promise<SelectUser | null> {
+    const rows: any = await db
+        .select()
+        .from(usersTable)
+        .where(and(eq(usersTable.email, email)));
+
+    return rows[0];
+}

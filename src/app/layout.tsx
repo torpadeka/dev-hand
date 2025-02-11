@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "@mantine/tiptap/styles.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -9,7 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Dev Hand",
-  description: "A forum-like web app platform for learning, for developers and programmers.",
+  description:
+    "A forum-like web app platform for learning, for developers and programmers.",
 };
 
 export default function RootLayout({
@@ -19,11 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} antialiased dark`}
-      >
-        {children}
-      </body>
+      <body className={`${inter.variable} antialiased dark`}>{children}</body>
     </html>
   );
 }

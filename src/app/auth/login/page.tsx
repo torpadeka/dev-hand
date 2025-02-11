@@ -4,8 +4,6 @@ import { signIn } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
 import { FaGoogle } from "react-icons/fa";
+import { useState } from "react";
 
 const formSchema = z.object({
     email: z
@@ -33,14 +32,9 @@ const formSchema = z.object({
         .max(255, { message: "Cannot exceed 255 characters!" }),
 });
 
-function ErrorMessage() {
-    const searchParams = useSearchParams();
-    const error = searchParams.get("error");
-
-    return error && <div style={{ color: "red" }}>Invalid credentials!</div>;
-}
-
 export default function Login() {
+    const [errorMessage, setErrorMessage] = useState("");
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -50,18 +44,25 @@ export default function Login() {
     });
 
     const submitCredentials = async (values: z.infer<typeof formSchema>) => {
-        const result = await signIn("credentials", {
+        const res = await signIn("credentials", {
             email: values.email,
             password: values.password,
-            redirectTo: "/",
+            redirect: false,
         });
+
+        if (res && res.error?.startsWith("CUSTOM_")) {
+            const encodedMsg = res.error.replace("CUSTOM_", "");
+            const decodedMsg = decodeURIComponent(encodedMsg);
+            setErrorMessage(decodedMsg);
+            return;
+        }
     };
 
     const googleSignIn = () => {
         signIn("google", {
             redirectTo: "/",
-        })
-    }
+        });
+    };
 
     return (
         <div className="w-screen h-screen flex items-center justify-center gap-8">
@@ -132,20 +133,15 @@ export default function Login() {
                             <Button className="mt-4 bg-button" type="submit">
                                 Login
                             </Button>
-                            <div className="h-4">
-                                <Suspense>
-                                    <ErrorMessage></ErrorMessage>
-                                </Suspense>
+                            <div className="h-4 text-destructive-foreground">
+                                {errorMessage}
                             </div>
                         </div>
                     </form>
                 </Form>
             </div>
             <div className="flex flex-col items-center justify-center gap-2">
-                <Button
-                    className="bg-black"
-                    onClick={googleSignIn}
-                >
+                <Button className="bg-black" onClick={googleSignIn}>
                     <FaGoogle />
                     <div>Sign In with Google</div>
                 </Button>

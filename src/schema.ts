@@ -11,7 +11,7 @@ export const usersTable = pgTable("users", {
     user_id: char({ length: 5 }).primaryKey(),
     username: varchar({ length: 100 }).notNull(),
     email: varchar({ length: 255 }).notNull(),
-    password: varchar({ length: 255 }).notNull(),
+    password: varchar({ length: 255 }),
     is_expert: boolean().notNull().default(false),
     created_at: date({ mode: "date" }).notNull().defaultNow(),
     updated_at: date({ mode: "date" })

@@ -18,6 +18,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 const formSchema = z.object({
     email: z
@@ -50,23 +51,32 @@ export default function Login() {
         const result = await signIn("credentials", {
             email: values.email,
             password: values.password,
-            // e.g., callbackUrl: '/dashboard'
+            redirectTo: "/",
             redirect: true,
         });
     };
 
     return (
-        <div className="w-screen h-screen flex items-center justify-center bg-background">
+        <div className="w-screen h-screen flex flex-col items-center justify-center gap-4 bg-background">
+            <div className="flex flex-col items-center justify-center gap-1">
+                <Image
+                    src="/dev-hand.svg"
+                    width={60}
+                    height={60}
+                    alt="#"
+                ></Image>
+                <div className="font-bold text-2xl text-logo">Dev Hand</div>
+            </div>
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-8 rounded-xl p-6 bg-primary"
+                    className="h-80 flex flex-col items-center gap-8 justify-center rounded-xl p-6 bg-primary"
                 >
                     <FormField
                         control={form.control}
                         name="email"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="h-20">
                                 <FormLabel>Username</FormLabel>
                                 <FormControl>
                                     <Input
@@ -85,7 +95,7 @@ export default function Login() {
                         control={form.control}
                         name="password"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="h-20">
                                 <FormLabel>Password</FormLabel>
                                 <FormControl>
                                     <Input
@@ -103,7 +113,7 @@ export default function Login() {
                     <Suspense>
                         <ErrorMessage></ErrorMessage>
                     </Suspense>
-                    <Button className="bg-button" type="submit">
+                    <Button className="mt-4 bg-button" type="submit">
                         Login
                     </Button>
                 </form>

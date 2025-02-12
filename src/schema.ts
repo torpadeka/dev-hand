@@ -8,6 +8,7 @@ import {
     serial,
     varchar,
 } from "drizzle-orm/pg-core";
+import { number } from "zod";
 
 export const usersTable = pgTable("users", {
     user_id: serial().primaryKey(),
@@ -117,10 +118,8 @@ export type InsertCategory = typeof categoriesTable.$inferInsert;
 export type SelectCategory = typeof categoriesTable.$inferSelect;
 
 export const threadCategoriesTable = pgTable("threadcategories", {
-    thread_id: serial()
-        .primaryKey()
-        .references(() => threadsTable.thread_id),
-    category_id: serial().references(() => categoriesTable.category_id),
+    thread_id: integer().references(() => threadsTable.thread_id),
+    category_id: integer().references(() => categoriesTable.category_id),
 });
 
 export type InsertThreadCategory = typeof threadCategoriesTable.$inferInsert;

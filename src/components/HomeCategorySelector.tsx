@@ -40,6 +40,10 @@ const HomeCategorySelector = forwardRef(
       ...filteredCategories.filter((c) => !selectedCategories.includes(c)),
     ];
 
+    useEffect(() => {
+      setSearchQuery("");
+    }, [showMore]);
+
     return (
       <div className="w-full">
         <div className={` ${showMore ? "flex" : "hidden"}`}>

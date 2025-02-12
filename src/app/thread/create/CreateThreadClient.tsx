@@ -6,6 +6,7 @@ import RichTextEditorComponent from "@/components/RichTextEditorComponent";
 import CategorySelector from "@/components/CategorySelector";
 import { SaveConfirmationDialog } from "@/components/SaveConfirmationDialog";
 import { createThread } from "@/actions/thread-queries";
+import { redirect } from "next/navigation";
 
 interface CreateThreadProps {
   userID: number;
@@ -82,6 +83,7 @@ export default function CreateThreadClient({
       savedCategories
     );
     console.log("Question submitted successfully!");
+    redirect("/thread/create/success");
   };
 
   return (

@@ -5,25 +5,28 @@ import CategoryTag from "./CategoryTag";
 import { IoIosArrowUp, IoIosText } from "react-icons/io";
 
 interface ThreadCardProps {
+  thread_id: string;
   title: string;
-  category: string[];
-  votes: number;
-  comments: number;
-  createdAt: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  categories: string[];
+  up_vote: number;
 }
 
 export default function ThreadCard({
+  thread_id,
   title,
-  category,
-  votes,
-  comments,
-  createdAt,
+  content,
+  created_at,
+  categories,
+  up_vote,
 }: ThreadCardProps) {
   const addUpvote = () => {
     setVoteCount(voteCount + 1);
   };
 
-  const [voteCount, setVoteCount] = useState(votes);
+  const [voteCount, setVoteCount] = useState(up_vote);
   return (
     <>
       <div className="px-4 bg-primary rounded-xl flex justify-between items-center shadow-md w-full">
@@ -43,7 +46,7 @@ export default function ThreadCard({
             <h3 className="text-card-foreground text-lg">{title}</h3>
           </div>
           <div className="flex gap-3 mt-2">
-            {category.map((category) => (
+            {categories.map((category) => (
               <CategoryTag key={category} category={category} />
             ))}
           </div>
@@ -51,10 +54,10 @@ export default function ThreadCard({
         <div className="flex flex-col gap-3 text-card-foreground/70 w-2/12 text-end mr-3">
           <div className="">
             <div className="flex items-center gap-2 w-full justify-end">
-              <IoIosText /> {comments}
+              <IoIosText /> {up_vote}
             </div>
           </div>
-          <div className="">{createdAt}</div>
+          <div className="">{created_at}</div>
         </div>
       </div>
     </>

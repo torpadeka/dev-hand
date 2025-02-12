@@ -15,36 +15,25 @@ import HomeCategorySelector from "@/components/HomeCategorySelector";
 import QuestionModal from "@/components/QuestionModal";
 
 interface HomeClientProps {
-  categories: string[]; // ✅ Pass categories from the server
+  categories: string[];
+  threads: {
+    thread_id: string;
+    title: string;
+    content: string;
+    created_at: string;
+    user_id: string;
+    categories: string[];
+    up_vote: number;
+  }[];
 }
 
-export default function HomeClient({ categories }: HomeClientProps) {
+export default function HomeClient({ categories, threads }: HomeClientProps) {
   const search = () => {
     console.log("Search");
   };
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showMoreCategory, setShowMoreCategory] = useState(false);
-
-  const threads = [
-    {
-      title:
-        "How to create a design system and what is the purpose of design system?",
-      category: ["Completed", "Dynamic Programming", "Graph Theory"],
-      author: "Farrel",
-      votes: 7,
-      comments: 1,
-      createdAt: "2 days ago",
-    },
-    {
-      title: "Best Practices in UI Design",
-      category: ["Greedy", "Graph Theory", "Dynamic Programming"],
-      author: "Farrel",
-      votes: 3,
-      comments: 5,
-      createdAt: "2 days ago",
-    },
-  ];
 
   return (
     <div className="w-screen h-screen bg-background">
@@ -111,8 +100,8 @@ export default function HomeClient({ categories }: HomeClientProps) {
                   key={index}
                   num={index + 1}
                   title={thread.title}
-                  createdAt={thread.createdAt}
-                  author={thread.author}
+                  createdAt={thread.created_at}
+                  author={thread.thread_id}
                 />
               ))}
             </div>
@@ -130,8 +119,8 @@ export default function HomeClient({ categories }: HomeClientProps) {
                   key={index}
                   num={index + 1}
                   title={thread.title}
-                  createdAt={thread.createdAt}
-                  author={thread.author}
+                  createdAt={thread.created_at}
+                  author={thread.thread_id}
                 />
               ))}
             </div>

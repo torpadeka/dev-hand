@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import RichTextEditorComponent from "@/components/RichTextEditorComponent";
 import CategorySelector from "@/components/CategorySelector";
 import { SaveConfirmationDialog } from "@/components/SaveConfirmationDialog";
-import { insertThread } from "@/actions/thread-queries";
+import { createThread } from "@/actions/thread-queries";
 
 interface CreateThreadProps {
   userID: number;
@@ -72,7 +72,14 @@ export default function CreateThreadClient({
   }, [savedCategories, savedContent, title, triggerValidation]);
 
   const handleSubmission = async () => {
-    await insertThread(userID, title, savedContent, "question", 0);
+    await createThread(
+      userID,
+      title,
+      savedContent,
+      "question",
+      0,
+      savedCategories
+    );
     console.log("Question submitted successfully!");
   };
 

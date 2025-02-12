@@ -66,7 +66,7 @@ const HomeCategorySelector = forwardRef(
                     ? removeCategory(category)
                     : selectCategory(category)
                 }
-                className={`px-3 py-1 rounded-md text-sm transition w-fit whitespace-nowrap ${
+                className={`px-3 py-1 max-h-7 rounded-md text-sm transition w-fit whitespace-nowrap ${
                   selectedCategories.includes(category)
                     ? "bg-chart-3 text-white hover:bg-chart-3/90"
                     : "bg-secondary text-primary hover:bg-primary-foreground/70"

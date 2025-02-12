@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { categoriesTable, InsertThread, threadCategoriesTable, threadsTable } from "@/schema";
-import { and, eq, inArray } from "drizzle-orm";
+import { categoriesTable, InsertThread, subThreadsTable, threadCategoriesTable, threadsTable, usersTable } from "@/schema";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 
 export async function createThread(
@@ -34,7 +34,7 @@ export async function createThread(
 
   }
 
-  export async function getAllThreadsWithCategories() {
+export async function getAllThreadsWithCategories() {
   const result = await db
     .select({
       thread_id: threadsTable.thread_id,
@@ -42,12 +42,26 @@ export async function createThread(
       content: threadsTable.content,
       created_at: threadsTable.created_at,
       user_id: threadsTable.user_id,
-      category_name: categoriesTable.category_name, 
-      up_vote: threadsTable.up_vote
+      username: usersTable.username, 
+      up_vote: threadsTable.up_vote,
+      category_name: categoriesTable.category_name,
+      sub_thread_count: sql<number>`COUNT(${subThreadsTable.subthread_id})`.as("sub_thread_count")
     })
     .from(threadsTable)
     .leftJoin(threadCategoriesTable, eq(threadsTable.thread_id, threadCategoriesTable.thread_id))
-    .leftJoin(categoriesTable, eq(threadCategoriesTable.category_id, categoriesTable.category_id));
+    .leftJoin(categoriesTable, eq(threadCategoriesTable.category_id, categoriesTable.category_id))
+    .leftJoin(subThreadsTable, eq(threadsTable.thread_id, subThreadsTable.thread_id))
+    .leftJoin(usersTable, eq(threadsTable.user_id, usersTable.user_id)) 
+    .groupBy(
+      threadsTable.thread_id,
+      threadsTable.title,
+      threadsTable.content,
+      threadsTable.created_at,
+      threadsTable.user_id,
+      usersTable.username,
+      threadsTable.up_vote,
+      categoriesTable.category_name
+    );
 
   const threadsMap = new Map();
 
@@ -58,8 +72,11 @@ export async function createThread(
         thread_id: row.thread_id,
         title: row.title,
         content: row.content,
-        created_at: row.created_at,
+        created_at: row.created_at.toISOString(),
         user_id: row.user_id,
+        username: row.username,
+        up_vote: row.up_vote,
+        sub_thread_count: row.sub_thread_count,
         categories: [],
       });
     }

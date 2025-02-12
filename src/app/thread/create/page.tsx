@@ -9,20 +9,18 @@ import { selectAllCategoryName } from "@/actions/category-queries";
 export default async function CreateThreadPage() {
   const session = await auth();
   const categories = await selectAllCategoryName();
-  let userID;
+  let getUser;
+
   if (!session?.user) {
     redirect("/auth/login");
   }
-
-  if (session && session.user) {
-    const getUser = await getUserByEmail(session?.user?.email || "");
-    if (getUser !== null) {
-      const user: SelectUser = getUser;
-      userID = getUser.user_id;
+  if (session && session?.user) {
+    getUser = await getUserByEmail(session?.user?.email || "");
+    console.log(getUser?.user_id);
+    if (getUser) {
+      return (
+        <CreateThreadClient userID={getUser.user_id} categories={categories} />
+      );
     }
   }
-
-  return (
-    <CreateThreadClient userID={userID ? userID : -1} categories={categories} />
-  );
 }

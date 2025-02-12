@@ -62,13 +62,13 @@ const CategorySelector = forwardRef(
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 mb-2 rounded-md border border-[#424242] text-primary-foreground bg-background"
         />
-        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md min-h-[50px] items-center h-52 overflow-auto">
+        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md h-52 overflow-auto">
           {filteredCategories.length > 0 ? (
             filteredCategories.map((category) => (
               <button
                 key={category}
                 onClick={() => selectCategory(category)}
-                className={`bg-secondary text-primary px-3 py-1 rounded-md text-sm hover:bg-primary-foreground/70 transition ${
+                className={`bg-secondary text-primary px-3 py-1 rounded-md text-sm hover:bg-primary-foreground/70 transition max-h-7 ${
                   selectedCategories.length >= 5
                     ? "opacity-50 cursor-not-allowed"
                     : ""

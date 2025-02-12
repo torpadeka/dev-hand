@@ -2,7 +2,7 @@ import {
     boolean,
     char,
     text,
-    date,
+    timestamp, 
     integer,
     pgTable,
     serial,
@@ -15,8 +15,8 @@ export const usersTable = pgTable("users", {
     email: varchar({ length: 255 }).notNull(),
     password: varchar({ length: 255 }),
     is_expert: boolean().notNull().default(false),
-    created_at: date({ mode: "date" }).notNull().defaultNow(),
-    updated_at: date({ mode: "date" })
+    created_at: timestamp({ mode: "date" }).notNull().defaultNow(),
+    updated_at: timestamp({ mode: "date" })
         .notNull()
         .defaultNow()
         .$onUpdate(() => new Date()),
@@ -47,8 +47,8 @@ export const badgesTable = pgTable("badges", {
     badge_name: varchar({ length: 50 }).notNull(),
     description: varchar({ length: 255 }).notNull(),
     criteria: varchar({ length: 255 }).notNull(),
-    created_at: date({ mode: "date" }).notNull().defaultNow(),
-    updated_at: date({ mode: "date" })
+    created_at: timestamp({ mode: "date" }).notNull().defaultNow(),
+    updated_at: timestamp({ mode: "date" })
         .notNull()
         .$onUpdate(() => new Date()),
 });
@@ -61,7 +61,7 @@ export const userBadgesTable = pgTable("userbadges", {
         .primaryKey()
         .references(() => usersTable.user_id),
     badge_id: serial().references(() => badgesTable.badge_id),
-    awarded_at: date({ mode: "date" }).notNull().defaultNow(),
+    awarded_at: timestamp({ mode: "date" }).notNull().defaultNow(),
 });
 
 export type InsertUserBadge = typeof userBadgesTable.$inferInsert;
@@ -73,11 +73,11 @@ export const subscriptionsTable = pgTable("subscriptions", {
         .notNull()
         .references(() => usersTable.user_id),
     subscription_type: varchar({ length: 10 }).notNull(),
-    start_date: date({ mode: "date" }).notNull().defaultNow(),
-    end_date: date({ mode: "date" }).notNull(),
+    start_date: timestamp({ mode: "date" }).notNull().defaultNow(),
+    end_date: timestamp({ mode: "date" }).notNull(),
     status: varchar({ length: 10 }).notNull(),
-    created_at: date({ mode: "date" }).notNull().defaultNow(),
-    updated_at: date({ mode: "date" })
+    created_at: timestamp({ mode: "date" }).notNull().defaultNow(),
+    updated_at: timestamp({ mode: "date" })
         .notNull()
         .$onUpdate(() => new Date()),
 });
@@ -94,8 +94,8 @@ export const threadsTable = pgTable("threads", {
     content: text().notNull(),
     thread_type: varchar({ length: 10 }).notNull(),
     up_vote: integer().notNull(),
-    created_at: date({ mode: "date" }).notNull().defaultNow(),
-    updated_at: date({ mode: "date" })
+    created_at: timestamp({ mode: "date" }).notNull().defaultNow(),
+    updated_at: timestamp({ mode: "date" })
         .notNull()
         .$onUpdate(() => new Date()),
 });
@@ -107,8 +107,8 @@ export const categoriesTable = pgTable("categories", {
     category_id: serial().primaryKey(),
     category_name: varchar({ length: 100 }).notNull(),
     description: varchar({ length: 255 }).notNull(),
-    created_at: date({ mode: "date" }).notNull().defaultNow(),
-    updated_at: date({ mode: "date" })
+    created_at: timestamp({ mode: "date" }).notNull().defaultNow(),
+    updated_at: timestamp({ mode: "date" })
         .notNull()
         .$onUpdate(() => new Date()),
 });
@@ -135,8 +135,8 @@ export const subThreadsTable = pgTable("subthreads", {
     title: varchar({ length: 255 }).notNull(),
     content: text().notNull(),
     is_ai_generated: boolean().notNull().default(false),
-    created_at: date({ mode: "date" }).notNull().defaultNow(),
-    updated_at: date({ mode: "date" })
+    created_at: timestamp({ mode: "date" }).notNull().defaultNow(),
+    updated_at: timestamp({ mode: "date" })
         .notNull()
         .$onUpdate(() => new Date()),
 });
@@ -153,8 +153,8 @@ export const repliesTable = pgTable("replies", {
         .notNull()
         .references(() => usersTable.user_id),
     content: text().notNull(),
-    created_at: date({ mode: "date" }).notNull(),
-    updated_at: date({ mode: "date" })
+    created_at: timestamp({ mode: "date" }).notNull(),
+    updated_at: timestamp({ mode: "date" })
         .notNull()
         .$onUpdate(() => new Date()),
 });

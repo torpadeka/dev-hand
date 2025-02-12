@@ -24,6 +24,8 @@ interface HomeClientProps {
     user_id: string;
     categories: string[];
     up_vote: number;
+    sub_thread_count: number;
+    username: string;
   }[];
 }
 
@@ -34,6 +36,13 @@ export default function HomeClient({ categories, threads }: HomeClientProps) {
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showMoreCategory, setShowMoreCategory] = useState(false);
+  const filteredThread = threads.filter(
+    (thread) =>
+      selectedCategories.length === 0 ||
+      thread.categories.some((category) =>
+        selectedCategories.includes(category)
+      )
+  );
 
   return (
     <div className="w-screen h-screen bg-background">
@@ -80,9 +89,19 @@ export default function HomeClient({ categories, threads }: HomeClientProps) {
 
           {/* Threads */}
           <div className="mt-4 space-y-4">
-            {threads.map((thread, index) => (
-              <ThreadCard key={index} {...thread} />
-            ))}
+            {filteredThread.length > 0 ? (
+              filteredThread.map((thread, index) => (
+                <ThreadCard
+                  key={index}
+                  {...thread}
+                  availableCategories={categories}
+                />
+              ))
+            ) : (
+              <p className="text-destructive text-center text-base">
+                No thread found
+              </p>
+            )}
           </div>
         </div>
 
@@ -101,7 +120,7 @@ export default function HomeClient({ categories, threads }: HomeClientProps) {
                   num={index + 1}
                   title={thread.title}
                   createdAt={thread.created_at}
-                  author={thread.thread_id}
+                  author={thread.username}
                 />
               ))}
             </div>
@@ -120,7 +139,7 @@ export default function HomeClient({ categories, threads }: HomeClientProps) {
                   num={index + 1}
                   title={thread.title}
                   createdAt={thread.created_at}
-                  author={thread.thread_id}
+                  author={thread.username}
                 />
               ))}
             </div>

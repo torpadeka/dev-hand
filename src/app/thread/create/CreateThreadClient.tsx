@@ -72,6 +72,7 @@ export default function CreateThreadClient({
   }, [savedCategories, savedContent, title, triggerValidation]);
 
   const handleSubmission = async () => {
+    console.log(userID);
     await createThread(
       userID,
       title,

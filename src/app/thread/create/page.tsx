@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import { getUserByEmail } from "@/actions/user-queries";
 import CreateThreadClient from "./CreateThreadClient";
 import { SelectUser } from "@/schema";
+import { selectAllCategoryName } from "@/actions/category-queries";
 
 export default async function CreateThreadPage() {
   const session = await auth();
+  const categories = await selectAllCategoryName();
   let userID;
   if (!session?.user) {
     redirect("/auth/login");
@@ -20,5 +22,7 @@ export default async function CreateThreadPage() {
     }
   }
 
-  return <CreateThreadClient userID={userID ? userID : -1} />;
+  return (
+    <CreateThreadClient userID={userID ? userID : -1} categories={categories} />
+  );
 }

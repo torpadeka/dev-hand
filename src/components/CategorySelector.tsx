@@ -2,20 +2,12 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 
 interface CategorySelectorProps {
   onSubmit: (selected: string[]) => void; // ✅ Function to send selected categories
+  categories: string[];
 }
 
 const CategorySelector = forwardRef(
-  ({ onSubmit }: CategorySelectorProps, ref) => {
-    const [availableCategories, setAvailableCategories] = useState([
-      "React",
-      "JavaScript",
-      "CSS",
-      "Tailwind",
-      "Node.js",
-      "Next.js",
-      "TypeScript",
-      "GraphQL",
-    ]);
+  ({ onSubmit, categories }: CategorySelectorProps, ref) => {
+    const [availableCategories, setAvailableCategories] = useState(categories);
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -70,7 +62,7 @@ const CategorySelector = forwardRef(
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 mb-2 rounded-md border border-[#424242] text-primary-foreground bg-background"
         />
-        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md min-h-[50px] items-center">
+        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md min-h-[50px] items-center h-52 overflow-auto">
           {filteredCategories.length > 0 ? (
             filteredCategories.map((category) => (
               <button

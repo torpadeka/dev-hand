@@ -9,9 +9,13 @@ import { insertThread } from "@/actions/thread-queries";
 
 interface CreateThreadProps {
   userID: number;
+  categories: string[];
 }
 
-export default function CreateThreadClient({ userID }: CreateThreadProps) {
+export default function CreateThreadClient({
+  userID,
+  categories,
+}: CreateThreadProps) {
   const [savedCategories, setSavedCategories] = useState<string[]>([]);
   const [savedContent, setSavedContent] = useState("");
   const [title, setTitle] = useState("");
@@ -131,6 +135,7 @@ export default function CreateThreadClient({ userID }: CreateThreadProps) {
           <CategorySelector
             ref={categorySelectorRef}
             onSubmit={setSavedCategories}
+            categories={categories}
           />
           <div className="text-destructive mx-3 my-1">{errorCategory}</div>
         </div>

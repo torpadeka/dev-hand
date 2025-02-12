@@ -1,6 +1,7 @@
 import {
     boolean,
     char,
+    text,
     date,
     integer,
     pgTable,
@@ -68,7 +69,7 @@ export type SelectUserBadge = typeof userBadgesTable.$inferSelect;
 
 export const subscriptionsTable = pgTable("subscriptions", {
     subscription_id: serial().primaryKey(),
-    user_id: serial()
+    user_id: integer()
         .notNull()
         .references(() => usersTable.user_id),
     subscription_type: varchar({ length: 10 }).notNull(),
@@ -86,12 +87,13 @@ export type SelectSubscription = typeof subscriptionsTable.$inferSelect;
 
 export const threadsTable = pgTable("threads", {
     thread_id: serial().primaryKey(),
-    user_id: serial()
+    user_id: integer()
         .notNull()
         .references(() => usersTable.user_id),
     title: varchar({ length: 255 }).notNull(),
-    content: varchar({ length: 255 }).notNull(),
+    content: text().notNull(),
     thread_type: varchar({ length: 10 }).notNull(),
+    up_vote: integer().notNull(),
     created_at: date({ mode: "date" }).notNull().defaultNow(),
     updated_at: date({ mode: "date" })
         .notNull()
@@ -126,12 +128,12 @@ export type SelectThreadCategory = typeof threadCategoriesTable.$inferSelect;
 
 export const subThreadsTable = pgTable("subthreads", {
     subthread_id: serial().primaryKey(),
-    thread_id: serial()
+    thread_id: integer()
         .notNull()
         .references(() => threadsTable.thread_id),
-    user_id: serial().references(() => usersTable.user_id),
+    user_id: integer().references(() => usersTable.user_id),
     title: varchar({ length: 255 }).notNull(),
-    content: varchar({ length: 255 }).notNull(),
+    content: text().notNull(),
     is_ai_generated: boolean().notNull().default(false),
     created_at: date({ mode: "date" }).notNull().defaultNow(),
     updated_at: date({ mode: "date" })
@@ -144,14 +146,14 @@ export type SelectSubThread = typeof subThreadsTable.$inferSelect;
 
 export const repliesTable = pgTable("replies", {
     reply_id: serial().primaryKey(),
-    subthread_id: serial()
+    subthread_id: integer()
         .notNull()
         .references(() => subThreadsTable.subthread_id),
-    user_id: serial()
+    user_id: integer()
         .notNull()
         .references(() => usersTable.user_id),
-    content: varchar({ length: 255 }).notNull(),
-    created_at: date({ mode: "date" }).notNull().defaultNow(),
+    content: text().notNull(),
+    created_at: date({ mode: "date" }).notNull(),
     updated_at: date({ mode: "date" })
         .notNull()
         .$onUpdate(() => new Date()),

@@ -52,13 +52,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const credentialsPassword: string = password;
 
                 const saltRounds = 10;
-                const hashedPassword = await bcrypt.hash(
-                    credentialsPassword,
-                    saltRounds
-                );
+                // const hashedPassword = await bcrypt.hash(
+                //     credentialsPassword,
+                //     saltRounds
+                // );
 
                 // debug purposes
-                // const hashedPassword = credentialsPassword;
+                const hashedPassword = credentialsPassword;
 
                 // use server action to try and fetch user
                 user = await getUserByCredentials(

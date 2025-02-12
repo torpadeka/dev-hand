@@ -18,8 +18,10 @@ const CategorySelector = forwardRef(
     ]);
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const selectCategory = (category: string) => {
+      if (selectedCategories.length >= 5) return;
       setAvailableCategories(availableCategories.filter((c) => c !== category));
       setSelectedCategories([...selectedCategories, category]);
     };
@@ -33,12 +35,16 @@ const CategorySelector = forwardRef(
       getSelectedCategories: () => onSubmit(selectedCategories),
     }));
 
+    const filteredCategories = availableCategories.filter((category) =>
+      category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
       <div className="max-w-lg mx-3">
         <div className="mb-2 text-xl font-semibold text-primary-foreground">
           Select Category
         </div>
-        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md min-h-[50px]">
+        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md min-h-[50px] items-center">
           {selectedCategories.length > 0 ? (
             selectedCategories.map((category) => (
               <button
@@ -57,19 +63,33 @@ const CategorySelector = forwardRef(
         <h2 className="text-xl font-semibold mt-4 mb-2 text-primary-foreground">
           Available Categories
         </h2>
-        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md min-h-[50px]">
-          {availableCategories.length > 0 ? (
-            availableCategories.map((category) => (
+        <input
+          type="text"
+          placeholder="Search categories..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full p-2 mb-2 rounded-md border border-[#424242] text-primary-foreground bg-background"
+        />
+        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md min-h-[50px] items-center">
+          {filteredCategories.length > 0 ? (
+            filteredCategories.map((category) => (
               <button
                 key={category}
                 onClick={() => selectCategory(category)}
-                className="bg-secondary text-primary px-3 py-1 rounded-md text-sm hover:bg-primary-foreground/70 transition"
+                className={`bg-secondary text-primary px-3 py-1 rounded-md text-sm hover:bg-primary-foreground/70 transition ${
+                  selectedCategories.length >= 5
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={selectedCategories.length >= 5}
               >
                 {category}
               </button>
             ))
           ) : (
-            <p className="text-foreground text-sm">All categories selected.</p>
+            <p className="text-foreground text-sm">
+              No matching categories found.
+            </p>
           )}
         </div>
         <button

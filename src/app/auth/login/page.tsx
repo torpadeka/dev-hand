@@ -17,9 +17,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import { FaGoogle } from "react-icons/fa";
 import { useState } from "react";
+import { authenticateCredentials } from "@/actions/authenticate-credentials";
 
 const formSchema = z.object({
     email: z
@@ -33,6 +35,7 @@ const formSchema = z.object({
 });
 
 export default function Login() {
+    const router = useRouter();
     const [errorMessage, setErrorMessage] = useState("");
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -44,17 +47,21 @@ export default function Login() {
     });
 
     const submitCredentials = async (values: z.infer<typeof formSchema>) => {
-        const res = await signIn("credentials", {
-            email: values.email,
-            password: values.password,
-            redirect: false,
-        });
+        try {
+            const res = await authenticateCredentials({
+                email: values.email,
+                password: values.password,
+            });
 
-        if (res && res.error?.startsWith("CUSTOM_")) {
-            const encodedMsg = res.error.replace("CUSTOM_", "");
-            const decodedMsg = decodeURIComponent(encodedMsg);
-            setErrorMessage(decodedMsg);
-            return;
+            if (res.message === "Login successful") {
+                router.push("/")
+            }
+
+            if (res.error) {
+                setErrorMessage(res.error?.message);
+            }
+        } catch (error: any) {
+            setErrorMessage("Something went wrong!");
         }
     };
 

@@ -6,13 +6,9 @@ import bcrypt from "bcryptjs";
 import Google from "@auth/core/providers/google";
 
 export class InvalidCredentialsError extends AuthError {
-    code: string;
     constructor(message: string) {
-        // Pass some string to the AuthError super, but we won't rely on it
-        super("custom", { message });
-
-        // Put the entire message in `code`, so NextAuth sets `res.error = code`
-        this.code = `CUSTOM_${encodeURIComponent(message)}`;
+        super();
+        this.message = message;
     }
 }
 
@@ -69,9 +65,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 console.log("USER: " + user);
 
                 if (!user) {
+                    user = await getUserByEmail(credentialsEmail);
+
+                    if (user && user.password === null) {
+                        throw new InvalidCredentialsError(
+                            "This email is registered using a provider! Try logging in with a provider instead!"
+                        );
+                    }
+
                     // No user found, so this is their first attempt to login
                     // Optionally, this is also the place you could do a user registration
-                    throw new InvalidCredentialsError("Invalid Credentials");
+                    throw new InvalidCredentialsError("Invalid Credentials!");
                 }
 
                 // return user object with their profile data

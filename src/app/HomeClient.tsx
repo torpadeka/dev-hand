@@ -72,7 +72,7 @@ export default function HomeClient({
         ? `&categories=${selecterCategoryIds.join(",")}`
         : "";
       const res = await fetch(
-        `/api/threads?page=${currentPage}&limit=3${categoryParams}`
+        `/api/threads/fetchthread?page=${currentPage}&limit=3${categoryParams}`
       );
       const data = await res.json();
       console.log(data.total_count);

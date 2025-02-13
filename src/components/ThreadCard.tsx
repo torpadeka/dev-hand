@@ -4,6 +4,7 @@ import { useState } from "react";
 import CategoryTag from "./CategoryTag";
 import { IoIosArrowUp, IoIosText } from "react-icons/io";
 import DateDiff from "date-diff";
+import { redirect } from "next/navigation";
 
 interface ThreadCardProps {
   thread_id: number;
@@ -50,9 +51,17 @@ export default function ThreadCard({
   } else {
     timeAgo = "Just now";
   }
+
+  const openDetailPage = () => {
+    redirect("/thread/" + thread_id);
+  };
+
   return (
     <>
-      <div className="px-4 bg-primary rounded-xl flex justify-between items-center shadow-md w-full">
+      <div
+        className="px-4 bg-primary rounded-xl flex justify-between items-center shadow-md w-full hover:cursor-pointer hover:shadow-primary"
+        onClick={openDetailPage}
+      >
         <div className="w-1/12 mr-3">
           <div className="flex items-center gap-2 justify-center">
             {voteCount}

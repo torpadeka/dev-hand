@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { categoriesTable, InsertThread, subThreadsTable, threadCategoriesTable, threadsTable, usersTable } from "@/schema";
+import { categoriesTable, InsertThread, repliesTable, subThreadsTable, threadCategoriesTable, threadsTable, usersTable } from "@/schema";
 import { and, eq, inArray, sql } from "drizzle-orm";
 
 interface Thread {
@@ -202,3 +202,121 @@ export async function getAllThreadsWithCategories(
   };
 }
 
+// Get Thread Detail
+export async function getThreadDetail(threadId: number) {
+  const result = await db
+    .select({
+      thread_id: threadsTable.thread_id,
+      user_id: threadsTable.user_id,
+      username: usersTable.username,
+      category_id: categoriesTable.category_id,
+      category_name: categoriesTable.category_name,
+      title: threadsTable.title,
+      content: threadsTable.content,
+      thread_type: threadsTable.thread_type,
+      created_at: threadsTable.created_at,
+      updated_at: threadsTable.updated_at,
+
+      // Subthread details
+      subthread_id: subThreadsTable.subthread_id,
+      subthread_userid: subThreadsTable.user_id,
+      subthread_username: sql<string>`(SELECT username FROM ${usersTable} WHERE ${usersTable.user_id} = ${subThreadsTable.user_id})`,
+      subthread_title: subThreadsTable.title,
+      subthread_content: subThreadsTable.content,
+      subthread_is_ai_generated: subThreadsTable.is_ai_generated,
+      subthread_created_at: subThreadsTable.created_at,
+      subthread_updated_at: subThreadsTable.updated_at,
+    })
+    .from(threadsTable)
+    .leftJoin(usersTable, eq(threadsTable.user_id, usersTable.user_id))
+    .leftJoin(threadCategoriesTable, eq(threadsTable.thread_id, threadCategoriesTable.thread_id))
+    .leftJoin(categoriesTable, eq(threadCategoriesTable.category_id, categoriesTable.category_id))
+    .leftJoin(subThreadsTable, eq(threadsTable.thread_id, subThreadsTable.thread_id))
+    .where(eq(threadsTable.thread_id, threadId))
+    .groupBy(
+      threadsTable.thread_id,
+      usersTable.username,
+      categoriesTable.category_id,
+      categoriesTable.category_name,
+      subThreadsTable.subthread_id,
+      subThreadsTable.user_id,
+      subThreadsTable.title,
+      subThreadsTable.content,
+      subThreadsTable.is_ai_generated,
+      subThreadsTable.created_at,
+      subThreadsTable.updated_at
+    );
+
+  // ✅ Ensure thread data is always valid
+  return {
+    thread_id: result[0]?.thread_id ?? 0, // ✅ Default to 0 if null
+    user: {
+      id: result[0]?.user_id ?? 0, // ✅ Ensure number
+      username: result[0]?.username ?? "Unknown",
+    },
+    categories: result.map(row => ({
+      id: row.category_id ?? 0, // ✅ Ensure number
+      name: row.category_name ?? "Uncategorized",
+    })),
+    title: result[0]?.title ?? "Untitled Thread",
+    content: result[0]?.content ?? "No content available.",
+    thread_type: result[0]?.thread_type ?? "general",
+    created_at: result[0]?.created_at?.toISOString() ?? new Date().toISOString(),
+    updated_at: result[0]?.updated_at?.toISOString() ?? null,
+    subthreads: result
+      .filter(row => row.subthread_id !== null)
+      .map(sub => ({
+        subthread_id: sub.subthread_id ?? 0, // ✅ Ensure number
+        user: {
+          id: sub.subthread_userid ?? 0, // ✅ Ensure number
+          username: sub.subthread_username ?? "Unknown",
+        },
+        title: sub.subthread_title ?? "Untitled Subthread",
+        content: sub.subthread_content ?? "No content available.",
+        is_ai_generated: sub.subthread_is_ai_generated ?? false, // ✅ Default to false
+        created_at: sub.subthread_created_at?.toISOString() ?? new Date().toISOString(),
+        updated_at: sub.subthread_updated_at?.toISOString() ?? null,
+      })),
+  };
+}
+
+
+// Get Reply from subthread
+export async function getRepliesForSubthread(subthreadId: number) {
+  const result = await db
+    .select({
+      reply_id: repliesTable.reply_id,
+      user_id: repliesTable.user_id,
+      username: sql<string>`(SELECT username FROM ${usersTable} WHERE ${usersTable.user_id} = ${repliesTable.user_id})`,
+      content: repliesTable.content,
+      created_at: repliesTable.created_at,
+      updated_at: repliesTable.updated_at,
+    })
+    .from(repliesTable)
+    .where(eq(repliesTable.subthread_id, subthreadId)); // ✅ Filter by single subthread
+
+  // ✅ Transform the result into structured JSON
+  return result.map(reply => ({
+    reply_id: reply.reply_id,
+    user: {
+      id: reply.user_id,
+      username: reply.username || "Unknown",
+    },
+    content: reply.content,
+    created_at: reply.created_at.toISOString(),
+    updated_at: reply.updated_at?.toISOString() || null,
+  }));
+}
+
+// Insert subthreads
+export async function createSubThread(threadId: number, userId: number, title: string, content: string, is_ai_generated: boolean = false) {
+    await db.insert(subThreadsTable).values({
+      thread_id: threadId,
+      user_id: userId,
+      title:title,
+      content:content,
+      is_ai_generated: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+  }

@@ -2,12 +2,14 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 
 interface CategorySelectorProps {
   onSubmit: (selected: string[]) => void; // ✅ Function to send selected categories
-  categories: string[];
+  categories: Map<number, string>;
 }
 
 const CategorySelector = forwardRef(
   ({ onSubmit, categories }: CategorySelectorProps, ref) => {
-    const [availableCategories, setAvailableCategories] = useState(categories);
+    const categoryNames = [...categories.values()];
+    const [availableCategories, setAvailableCategories] =
+      useState(categoryNames);
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");

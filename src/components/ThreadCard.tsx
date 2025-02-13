@@ -6,15 +6,15 @@ import { IoIosArrowUp, IoIosText } from "react-icons/io";
 import DateDiff from "date-diff";
 
 interface ThreadCardProps {
-  thread_id: string;
+  thread_id: number;
   title: string;
   content: string;
   created_at: string;
-  user_id: string;
+  user_id: number;
   categories: string[];
   up_vote: number;
   sub_thread_count: number;
-  availableCategories: string[];
+  availableCategories: Map<number, string>;
 }
 
 export default function ThreadCard({

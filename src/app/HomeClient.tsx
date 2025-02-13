@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   IoIosBonfire,
   IoIosRefresh,
@@ -15,34 +15,89 @@ import HomeCategorySelector from "@/components/HomeCategorySelector";
 import QuestionModal from "@/components/QuestionModal";
 
 interface HomeClientProps {
-  categories: string[];
-  threads: {
-    thread_id: string;
-    title: string;
-    content: string;
-    created_at: string;
-    user_id: string;
-    categories: string[];
-    up_vote: number;
-    sub_thread_count: number;
-    username: string;
-  }[];
+  categories: Map<number, string>;
+  // threads: {
+  //   thread_id: number;
+  //   title: string;
+  //   content: string;
+  //   created_at: string;
+  //   user_id: string;
+  //   categories: string[];
+  //   up_vote: number;
+  //   sub_thread_count: number;
+  //   username: string;
+  // }[];
 }
 
-export default function HomeClient({ categories, threads }: HomeClientProps) {
+interface Thread {
+  thread_id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  user_id: number;
+  username: string;
+  up_vote: number;
+  sub_thread_count: number;
+  categories: string[];
+}
+
+export default function HomeClient({
+  categories /*, threads*/,
+}: HomeClientProps) {
   const search = () => {
     console.log("Search");
   };
 
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showMoreCategory, setShowMoreCategory] = useState(false);
-  const filteredThread = threads.filter(
-    (thread) =>
-      selectedCategories.length === 0 ||
-      thread.categories.some((category) =>
-        selectedCategories.includes(category)
-      )
-  );
+
+  function getAllKeysFromValues(
+    map: Map<number, string>,
+    values: string[]
+  ): number[][] {
+    return values.map(
+      (value) =>
+        [...map.entries()]
+          .filter(([key, val]) => val === value)
+          .map(([key]) => key) // ✅ Extract all matching keys
+    );
+  }
+
+  useEffect(() => {
+    async function fetchThreads() {
+      if (selectedCategories.length > 0) setCurrentPage(1);
+
+      const selecterCategoryIds = getAllKeysFromValues(
+        categories,
+        selectedCategories
+      );
+
+      const categoryParams = selectedCategories.length
+        ? `&categories=${selecterCategoryIds.join(",")}`
+        : "";
+      const res = await fetch(
+        `/api/threads?page=${currentPage}&limit=3${categoryParams}`
+      );
+      const data = await res.json();
+      console.log(data.total_count);
+      setThreads(data.threads);
+      setTotalCount(data.total_count);
+      setTotalPages(data.total_pages);
+    }
+    fetchThreads();
+  }, [currentPage, selectedCategories]);
+
+  // const filteredThread = threads.filter(
+  //   (thread) =>
+  //     selectedCategories.length === 0 ||
+  //     thread.categories.some((category) =>
+  //       selectedCategories.includes(category)
+  //     )
+  // );
 
   return (
     <div className="w-screen h-screen bg-background">
@@ -89,8 +144,8 @@ export default function HomeClient({ categories, threads }: HomeClientProps) {
 
           {/* Threads */}
           <div className="mt-4 space-y-4">
-            {filteredThread.length > 0 ? (
-              filteredThread.map((thread, index) => (
+            {threads.length > 0 ? (
+              threads.map((thread, index) => (
                 <ThreadCard
                   key={index}
                   {...thread}
@@ -102,6 +157,27 @@ export default function HomeClient({ categories, threads }: HomeClientProps) {
                 No thread found
               </p>
             )}
+          </div>
+          <div className="flex justify-center mt-4 gap-3">
+            <button
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
         </div>
 
@@ -143,6 +219,7 @@ export default function HomeClient({ categories, threads }: HomeClientProps) {
                 />
               ))}
             </div>
+            {/* Pagination Controls */}
           </div>
         </div>
       </div>

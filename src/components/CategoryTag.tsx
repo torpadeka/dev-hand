@@ -1,6 +1,6 @@
 interface CategoryTagProps {
   category: string;
-  availableCategories: string[];
+  availableCategories: Map<number, string>;
 }
 
 export default function CategoryTag({
@@ -14,10 +14,17 @@ export default function CategoryTag({
     Sorting: "text-chart-4",
   };
 
+  function getKeyFromValue(map: Map<number, string>, value: string): number {
+    for (const [key, val] of map.entries()) {
+      if (val === value) return key; // ✅ Return key if value matches
+    }
+    return -1; // ❌ No match found
+  }
+
   return (
     <div
       className={`border-2 rounded-full p-1 px-2 w-fit text-xs text-chart-${
-        (availableCategories.indexOf(category) % 5) + 1
+        (getKeyFromValue(availableCategories, category) % 5) + 1
       }`}
     >
       {category}

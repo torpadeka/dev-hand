@@ -3,12 +3,15 @@ import { forwardRef, useImperativeHandle, useState, useEffect } from "react";
 interface CategorySelectorProps {
   onCategoryChange: (selected: string[]) => void; // ✅ Nama lebih jelas
   showMore: boolean;
-  categories: string[];
+  categories: Map<number, string>;
 }
 
 const HomeCategorySelector = forwardRef(
   ({ onCategoryChange, showMore, categories }: CategorySelectorProps, ref) => {
-    const [availableCategories, setAvailableCategories] = useState(categories);
+    const categoryNames = [...categories.values()];
+    const [availableCategories, setAvailableCategories] = useState([
+      ...categories.values(),
+    ]);
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");

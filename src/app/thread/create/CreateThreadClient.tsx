@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 
 interface CreateThreadProps {
   userID: number;
-  categories: string[];
+  categories: Map<number, string>;
 }
 
 export default function CreateThreadClient({

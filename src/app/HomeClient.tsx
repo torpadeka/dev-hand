@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   IoIosBonfire,
   IoIosRefresh,
@@ -16,17 +17,6 @@ import QuestionModal from "@/components/QuestionModal";
 
 interface HomeClientProps {
   categories: Map<number, string>;
-  // threads: {
-  //   thread_id: number;
-  //   title: string;
-  //   content: string;
-  //   created_at: string;
-  //   user_id: string;
-  //   categories: string[];
-  //   up_vote: number;
-  //   sub_thread_count: number;
-  //   username: string;
-  // }[];
 }
 
 interface Thread {
@@ -55,20 +45,22 @@ export default function HomeClient({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showMoreCategory, setShowMoreCategory] = useState(false);
 
+  const [loadingThread, setLoadingThread] = useState(true);
+
   function getAllKeysFromValues(
     map: Map<number, string>,
     values: string[]
   ): number[][] {
-    return values.map(
-      (value) =>
-        [...map.entries()]
-          .filter(([key, val]) => val === value)
-          .map(([key]) => key) // ✅ Extract all matching keys
+    return values.map((value) =>
+      [...map.entries()]
+        .filter(([key, val]) => val === value)
+        .map(([key]) => key)
     );
   }
 
   useEffect(() => {
     async function fetchThreads() {
+      setLoadingThread(true);
       if (selectedCategories.length > 0) setCurrentPage(1);
 
       const selecterCategoryIds = getAllKeysFromValues(
@@ -87,26 +79,17 @@ export default function HomeClient({
       setThreads(data.threads);
       setTotalCount(data.total_count);
       setTotalPages(data.total_pages);
+      setLoadingThread(false);
     }
     fetchThreads();
   }, [currentPage, selectedCategories]);
-
-  // const filteredThread = threads.filter(
-  //   (thread) =>
-  //     selectedCategories.length === 0 ||
-  //     thread.categories.some((category) =>
-  //       selectedCategories.includes(category)
-  //     )
-  // );
 
   return (
     <div className="w-screen h-screen bg-background">
       <Navbar />
 
       <div className="flex gap-2">
-        {/* Left Content */}
         <div className="flex flex-col w-2/3 ml-10 mt-5 min-w-0">
-          {/* Search Bar */}
           <div className="flex bg-primary items-center rounded-xl">
             <input
               type="text"
@@ -120,13 +103,12 @@ export default function HomeClient({
             />
           </div>
 
-          {/* Category Filter */}
           <div className="flex items-center my-3 text-primary-foreground">
             <div className="no-scrollbar items-center overflow-auto mr-2">
               <HomeCategorySelector
                 onCategoryChange={setSelectedCategories}
                 showMore={showMoreCategory}
-                categories={categories} // ✅ Pass fetched categories
+                categories={categories}
               />
             </div>
             <button
@@ -134,7 +116,7 @@ export default function HomeClient({
               className="flex items-center text-lg font-semibold"
             >
               <motion.div
-                animate={{ rotate: showMoreCategory ? 180 : 0 }} // ✅ Animate dropdown arrow
+                animate={{ rotate: showMoreCategory ? 180 : 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
               >
                 <IoIosArrowDown className="w-6 h-6" />
@@ -143,47 +125,55 @@ export default function HomeClient({
           </div>
 
           {/* Threads */}
-          <div className="mt-4 space-y-4">
-            {threads.length > 0 ? (
-              threads.map((thread, index) => (
-                <ThreadCard
-                  key={index}
-                  {...thread}
-                  availableCategories={categories}
-                />
-              ))
-            ) : (
-              <p className="text-destructive text-center text-base">
-                No thread found
-              </p>
-            )}
-          </div>
-          <div className="flex justify-center mt-4 gap-3">
-            <button
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
+          {loadingThread ? (
+            <div className="flex flex-col space-y-3">
+              <Skeleton className="h-[100px] w-full rounded-xl bg-primary" />
+              <Skeleton className="h-[100px] w-full rounded-xl bg-primary" />
+              <Skeleton className="h-[100px] w-full rounded-xl bg-primary" />
+            </div>
+          ) : (
+            <div className="">
+              <div className="mt-4 space-y-4">
+                {threads.length > 0 ? (
+                  threads.map((thread, index) => (
+                    <ThreadCard
+                      key={index}
+                      {...thread}
+                      availableCategories={categories}
+                    />
+                  ))
+                ) : (
+                  <p className="text-destructive text-center text-base">
+                    No thread found
+                  </p>
+                )}
+              </div>
+              <div className="flex justify-center items-center mt-4 gap-3">
+                <button
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
+                >
+                  Previous
+                </button>
 
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
 
-            <button
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+                <button
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Sidebar */}
         <div className="w-1/3 my-4 mx-3 flex flex-col gap-3">
-          {/* Hot Topics */}
           <div className="bg-primary rounded-[15px] p-3">
             <div className="flex gap-2 justify-center text-primary-foreground text-xl mb-2 items-center">
               <IoIosBonfire /> Hot Topic <IoIosBonfire />
@@ -202,7 +192,6 @@ export default function HomeClient({
             </div>
           </div>
 
-          {/* Newest Forum */}
           <div className="bg-primary rounded-[15px] p-3">
             <div className="flex gap-2 justify-center text-primary-foreground text-xl mb-2 items-center">
               <IoIosRefresh /> Newest Forum <IoIosRefresh />
@@ -219,12 +208,10 @@ export default function HomeClient({
                 />
               ))}
             </div>
-            {/* Pagination Controls */}
           </div>
         </div>
       </div>
 
-      {/* Floating Question Button */}
       <div className="fixed bottom-4 right-4">
         <QuestionModal />
       </div>

@@ -137,12 +137,9 @@ export default function Login() {
                             />
                         </div>
                         <div className="flex flex-col items-center justify-center gap-3">
-                            <Button className="mt-4 bg-button" type="submit">
+                            <Button className="bg-button" type="submit">
                                 Login
                             </Button>
-                            <div className="h-4 text-destructive-foreground">
-                                {errorMessage}
-                            </div>
                         </div>
                     </form>
                 </Form>

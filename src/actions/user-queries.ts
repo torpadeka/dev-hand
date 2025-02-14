@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { SelectUser, usersTable } from "@/schema";
 import { and, eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 type SelectUserType = SelectUser;
 
@@ -29,4 +30,35 @@ export async function getUserByEmail(
         .where(and(eq(usersTable.email, email)));
 
     return rows[0];
+}
+
+export async function registerUser(formData: any) {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(formData.password, saltRounds);
+
+    const checkUser: any = db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.email, formData.email));
+
+    console.log(formData.username)
+    console.log(formData.email)
+    console.log(formData.password)
+
+    if (checkUser[0] == null) {
+        await db.insert(usersTable).values({
+            username: formData.username,
+            email: formData.email,
+            password: hashedPassword,
+        });
+
+        console.log("INSERTED")
+
+        return { success: true, message: "Register successful!" };
+    }
+    
+    return {
+        success: false,
+        message: "This email is already registered!",
+    };
 }

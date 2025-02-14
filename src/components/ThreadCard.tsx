@@ -5,6 +5,7 @@ import CategoryTag from "./CategoryTag";
 import { IoIosArrowUp, IoIosText } from "react-icons/io";
 import DateDiff from "date-diff";
 import { redirect } from "next/navigation";
+import { getTimeAgo } from "@/app/utils/timeAgo";
 
 interface ThreadCardProps {
   thread_id: number;
@@ -33,24 +34,8 @@ export default function ThreadCard({
   };
 
   const [voteCount, setVoteCount] = useState(up_vote);
-  const createdAt = new Date(created_at);
-  const now = new Date();
-  const diff = new DateDiff(now, createdAt);
 
-  let timeAgo;
-  if (diff.years() >= 1) {
-    timeAgo = `${Math.floor(diff.years())} years ago`;
-  } else if (diff.months() >= 1) {
-    timeAgo = `${Math.floor(diff.months())} months ago`;
-  } else if (diff.days() >= 1) {
-    timeAgo = `${Math.floor(diff.days())} days ago`;
-  } else if (diff.hours() >= 1) {
-    timeAgo = `${Math.floor(diff.hours())} hours ago`;
-  } else if (diff.minutes() >= 1) {
-    timeAgo = `${Math.floor(diff.minutes())} minutes ago`;
-  } else {
-    timeAgo = "Just now";
-  }
+  let timeAgo = getTimeAgo(created_at);
 
   const openDetailPage = () => {
     redirect("/thread/" + thread_id);

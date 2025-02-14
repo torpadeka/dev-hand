@@ -12,16 +12,23 @@ import { Button } from "@/components/ui/button";
 import { SaveConfirmationDialog } from "@/components/SaveConfirmationDialog";
 import { AnswerConfirmation } from "@/components/AnswerConfirmation";
 import { EditorContent } from "@tiptap/react";
+import { redirect } from "next/navigation";
+import { createSubThread } from "@/actions/thread-queries";
 
 interface ThreadProps {
   thread: Thread;
   availableCategories: Map<number, string>;
+  user: User | null;
 }
 
 export default function ThreadDetailClient({
   thread,
   availableCategories,
+  user,
 }: ThreadProps) {
+  if (user == null) {
+    redirect("/auth/login");
+  }
   const [savedContent, setSavedContent] = useState("");
   const [error, setError] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -48,16 +55,21 @@ export default function ThreadDetailClient({
     }
     setValidate(true);
   };
-
   const handleSubmit = async () => {
     if (!error) {
     }
+    await createSubThread(
+      thread.thread_id || 0,
+      user.user_id,
+      savedContent,
+      false
+    );
     console.log(savedContent);
     setIsConfirmationVisible(!isConfirmationVisible);
     setIsCommentVisible(!isCommentVisible);
     setError(true);
   };
-
+  console.log(thread);
   return (
     <>
       <Navbar></Navbar>
@@ -123,8 +135,8 @@ export default function ThreadDetailClient({
               />
             )}
             {thread.subthreads.length > 0 ? (
-              thread.subthreads.map((subthread) => (
-                <AnswerCard subThread={subthread}></AnswerCard>
+              thread.subthreads.map((subthread, index) => (
+                <AnswerCard subThread={subthread} key={index}></AnswerCard>
               ))
             ) : (
               <p className="ml-24 mt-4 text-destructive text-center">

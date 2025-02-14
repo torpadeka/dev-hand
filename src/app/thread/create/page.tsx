@@ -3,24 +3,24 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getUserByEmail } from "@/actions/user-queries";
 import CreateThreadClient from "./CreateThreadClient";
-import { SelectUser } from "@/schema";
 import { selectAllCategoryName } from "@/actions/category-queries";
 
 export default async function CreateThreadPage() {
   const session = await auth();
-  const categories = await selectAllCategoryName();
-  let getUser;
-
   if (!session?.user) {
-    redirect("/auth/login");
+    return redirect("/auth/login"); // ✅ Redirect early
   }
-  if (session && session?.user) {
-    getUser = await getUserByEmail(session?.user?.email || "");
-    console.log(getUser?.user_id);
-    if (getUser) {
-      return (
-        <CreateThreadClient userID={getUser.user_id} categories={categories} />
-      );
-    }
+
+  const [categories, getUser] = await Promise.all([
+    selectAllCategoryName(),
+    getUserByEmail(session.user.email || ""),
+  ]); // ✅ Run both queries in parallel
+
+  if (!getUser) {
+    return redirect("/auth/login"); // ✅ Extra safety check
   }
+
+  return (
+    <CreateThreadClient userID={getUser.user_id} categories={categories} />
+  );
 }

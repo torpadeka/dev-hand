@@ -197,8 +197,10 @@ export async function getThreadDetail(threadId: number) {
       thread_id: threadsTable.thread_id,
       user_id: threadsTable.user_id,
       username: usersTable.username,
-      category_id: categoriesTable.category_id,
-      category_name: categoriesTable.category_name,
+
+      // ✅ Aggregate categories to avoid duplication
+      categories: sql<string[]>`ARRAY_AGG(DISTINCT ${categoriesTable.category_name}) FILTER (WHERE ${categoriesTable.category_name} IS NOT NULL)`.as("categories"),
+
       title: threadsTable.title,
       content: threadsTable.content,
       up_vote: threadsTable.up_vote,
@@ -206,7 +208,7 @@ export async function getThreadDetail(threadId: number) {
       created_at: threadsTable.created_at,
       updated_at: threadsTable.updated_at,
 
-      // Subthread details
+      // ✅ Subthread details
       subthread_id: subThreadsTable.subthread_id,
       subthread_userid: subThreadsTable.user_id,
       subthread_username: sql<string>`(SELECT username FROM ${usersTable} WHERE ${usersTable.user_id} = ${subThreadsTable.user_id})`,
@@ -227,8 +229,6 @@ export async function getThreadDetail(threadId: number) {
     .groupBy(
       threadsTable.thread_id,
       usersTable.username,
-      categoriesTable.category_id,
-      categoriesTable.category_name,
       subThreadsTable.subthread_id,
       subThreadsTable.user_id,
       subThreadsTable.content,
@@ -238,41 +238,43 @@ export async function getThreadDetail(threadId: number) {
       userProfilesTable.profile_picture
     );
 
-  // ✅ Ensure thread data is always valid
+  // ✅ Process result without duplicating subthreads
+  const uniqueSubthreads = new Map();
+
+  result.forEach(sub => {
+    if (sub.subthread_id !== null && !uniqueSubthreads.has(sub.subthread_id)) {
+      uniqueSubthreads.set(sub.subthread_id, {
+        subthread_id: sub.subthread_id ?? 0, // ✅ Ensure number
+        user: {
+          id: sub.subthread_userid ?? 0,
+          username: sub.subthread_username ?? "Unknown",
+        },
+        content: sub.subthread_content ?? "No content available.",
+        up_vote: sub.subhtread_up_vote ?? 0,
+        profile_picture: sub.subthread_profile ?? "",
+        is_ai_generated: sub.subthread_is_ai_generated ?? false,
+        created_at: sub.subthread_created_at?.toISOString() ?? new Date().toISOString(),
+        updated_at: sub.subthread_updated_at?.toISOString() ?? null,
+      });
+    }
+  });
+
   return {
-    thread_id: result[0]?.thread_id ?? 0, // ✅ Default to 0 if null
+    thread_id: result[0]?.thread_id ?? 0,
     user: {
-      id: result[0]?.user_id ?? 0, // ✅ Ensure number
+      id: result[0]?.user_id ?? 0,
       username: result[0]?.username ?? "Unknown",
     },
-    categories: result.map(row => ({
-      id: row.category_id ?? 0, // ✅ Ensure number
-      name: row.category_name ?? "Uncategorized",
-    })),
+    categories: result[0]?.categories ?? [], // ✅ Already aggregated in SQL
     title: result[0]?.title ?? "Untitled Thread",
     content: result[0]?.content ?? "No content available.",
     up_vote: result[0]?.up_vote ?? 0,
     thread_type: result[0]?.thread_type ?? "general",
     created_at: result[0]?.created_at?.toISOString() ?? new Date().toISOString(),
     updated_at: result[0]?.updated_at?.toISOString() ?? null,
-    subthreads: result
-      .filter(row => row.subthread_id !== null)
-      .map(sub => ({
-        subthread_id: sub.subthread_id ?? 0, // ✅ Ensure number
-        user: {
-          id: sub.subthread_userid ?? 0, // ✅ Ensure number
-          username: sub.subthread_username ?? "Unknown",
-        },
-        content: sub.subthread_content ?? "No content available.",
-        up_vote: sub.subhtread_up_vote ?? 0,
-        profile_picture: sub.subthread_profile?? "",
-        is_ai_generated: sub.subthread_is_ai_generated ?? false, // ✅ Default to false
-        created_at: sub.subthread_created_at?.toISOString() ?? new Date().toISOString(),
-        updated_at: sub.subthread_updated_at?.toISOString() ?? null,
-      })),
+    subthreads: Array.from(uniqueSubthreads.values()), // ✅ Prevent duplicate subthreads
   };
 }
-
 
 // Get Reply from subthread
 export async function getRepliesForSubthread(subthreadId: number) {
@@ -302,7 +304,7 @@ export async function getRepliesForSubthread(subthreadId: number) {
 }
 
 // Insert subthreads
-export async function createSubThread(threadId: number, userId: number, title: string, content: string, is_ai_generated: boolean = false) {
+export async function createSubThread(threadId: number, userId: number, content: string, is_ai_generated: boolean = false) {
     await db.insert(subThreadsTable).values({
       thread_id: threadId,
       user_id: userId,

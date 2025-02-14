@@ -4,6 +4,8 @@ import React, { useRef, useState } from "react";
 import { IoIosArrowUp } from "react-icons/io";
 import CategoryTag from "./CategoryTag";
 import DateDiff from "date-diff";
+import { Separator } from "./ui/separator";
+import { getTimeAgo } from "@/app/utils/timeAgo";
 // import ReactQuill from 'react-quill';
 // import 'react-quill/dist/quill.snow.css';
 
@@ -47,24 +49,7 @@ export default function SubThreadCard({
     setVote(vote + 1);
   };
 
-  const createdAt = new Date(thread.created_at);
-  const now = new Date();
-  const diff = new DateDiff(now, createdAt);
-
-  let timeAgo;
-  if (diff.years() >= 1) {
-    timeAgo = `${Math.floor(diff.years())} years ago`;
-  } else if (diff.months() >= 1) {
-    timeAgo = `${Math.floor(diff.months())} months ago`;
-  } else if (diff.days() >= 1) {
-    timeAgo = `${Math.floor(diff.days())} days ago`;
-  } else if (diff.hours() >= 1) {
-    timeAgo = `${Math.floor(diff.hours())} hours ago`;
-  } else if (diff.minutes() >= 1) {
-    timeAgo = `${Math.floor(diff.minutes())} minutes ago`;
-  } else {
-    timeAgo = "Just now";
-  }
+  let timeAgo = getTimeAgo(thread.created_at);
 
   return (
     <div className="flex flex-col ml-20 mt-5 bg-primary rounded-xl pl-5">
@@ -80,7 +65,10 @@ export default function SubThreadCard({
         </div>
         <p className="ml-4 text-2xl text-primary-foreground">{thread.title}</p>
       </div>
-
+      <div
+        className="ml-12 my-4 "
+        dangerouslySetInnerHTML={{ __html: thread.content }}
+      ></div>
       <div className="flex justify-between items-center mt-1 mb-4 w-full">
         <div className="flex gap-7 ml-10">
           {thread.categories.map((category, index) => (

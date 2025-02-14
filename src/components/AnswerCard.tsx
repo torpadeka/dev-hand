@@ -2,6 +2,7 @@ import { IoIosArrowUp } from "react-icons/io";
 import { IoEllipsisVertical } from "react-icons/io5";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useState } from "react";
+import { getTimeAgo } from "@/app/utils/timeAgo";
 
 interface AnswerCardProps {
   subThread: Subthread;
@@ -12,7 +13,7 @@ export default function AnswerCard({ subThread }: AnswerCardProps) {
   const AddVotes = () => {
     setUserVote(userVote + 1);
   };
-
+  let timeAgo = getTimeAgo(subThread.created_at);
   return (
     <div className="flex flex-col justify-center items-center mt-5 ml-20 bg-primary rounded-xl text-primary-foreground">
       <div className="border-gray-500 border rounded-xl w-full pl-2">
@@ -22,13 +23,14 @@ export default function AnswerCard({ subThread }: AnswerCardProps) {
             <AvatarFallback>SL</AvatarFallback>
           </Avatar>
           <div className="text-sm flex flex-col ml-3">
-            <p>Mark</p>
-            <p>1 week ago</p>
+            <p>{subThread.user.username}</p>
+            <p>{timeAgo}</p>
           </div>
         </div>
-        <div className="flex items-center m-3 mt-1">
-          <p>You can just do this and that after that do that</p>
-        </div>
+        <div
+          className="flex items-start m-3 mt-1 flex-col"
+          dangerouslySetInnerHTML={{ __html: subThread.content }}
+        ></div>
         <div className="flex justify-between">
           <div className="ml-3 mb-3 flex gap-5 items-center ">
             <div
@@ -42,7 +44,7 @@ export default function AnswerCard({ subThread }: AnswerCardProps) {
             </div>
           </div>
           <div>
-            <p className="mr-5">{userVote} upvotes</p>
+            <p className="mr-5">{subThread.up_vote} upvotes</p>
           </div>
         </div>
       </div>

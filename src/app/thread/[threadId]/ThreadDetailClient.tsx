@@ -1,121 +1,139 @@
 "use client";
-import { useState } from "react";
 
-interface Thread {
-  thread_id: number | null;
-  title: string;
-  content: string;
-  thread_type: string;
-  created_at: string;
-  updated_at?: string | null;
-  user: {
-    id: number | null;
-    username: string;
-  };
-  categories: { id: number | null; name: string | null }[];
-  subthreads: Subthread[];
+import Navbar from "@/components/Navbar";
+import SubThreadCard from "@/components/SubThreadCard";
+import AnswerCard from "@/components/AnswerCard";
+import { useEffect, useRef, useState } from "react";
+import { IoChatbubbleOutline } from "react-icons/io5";
+import SidebarThreads from "@/components/SidebarThreads";
+import { IoArrowUp, IoArrowDown } from "react-icons/io5";
+import RichTextEditorComponent from "@/components/RichTextEditorComponent";
+import { Button } from "@/components/ui/button";
+import { SaveConfirmationDialog } from "@/components/SaveConfirmationDialog";
+import { AnswerConfirmation } from "@/components/AnswerConfirmation";
+import { EditorContent } from "@tiptap/react";
+
+interface ThreadProps {
+  thread: Thread;
+  availableCategories: Map<number, string>;
 }
 
-interface Subthread {
-  subthread_id: number;
-  user: {
-    id: number;
-    username: string | null;
+export default function ThreadDetailClient({
+  thread,
+  availableCategories,
+}: ThreadProps) {
+  const [savedContent, setSavedContent] = useState("");
+  const [error, setError] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [validate, setValidate] = useState(false);
+  const editorRef = useRef<{ getEditorContent: () => void } | null>(null);
+  const [sortBy, setSortBy] = useState("Oldest");
+  const [isCommentVisible, setIsCommentVisible] = useState(false);
+  const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
+  const toggleSortBy = () => {
+    setSortBy((prev) => (prev === "Oldest" ? "Newest" : "Oldest"));
   };
-  title: string;
-  content: string;
-  is_ai_generated: boolean;
-  created_at: string;
-  updated_at?: string | null;
-}
 
-interface Reply {
-  reply_id: number;
-  user: {
-    id: number;
-    username: string;
-  };
-  content: string;
-  created_at: string;
-  updated_at?: string | null;
-}
+  useEffect(() => {
+    if (!validate) return;
+    if (savedContent.length < 50)
+      setErrorMessage("Answer must at least 50 characters!");
+    else setErrorMessage("");
+    setValidate(false);
+  }, [validate, savedContent]);
 
-export default function ThreadDetailClient({ thread }: { thread: Thread }) {
-  const [replies, setReplies] = useState<Record<number, Reply[]>>({});
-  const [loadingReplies, setLoadingReplies] = useState<Record<number, boolean>>(
-    {}
-  );
-
-  // ✅ Fetch replies only when user clicks "See Replies"
-  const fetchReplies = async (subthreadId: number) => {
-    if (replies[subthreadId]) return; // ✅ Prevent re-fetching if already loaded
-
-    setLoadingReplies((prev) => ({ ...prev, [subthreadId]: true })); // ✅ Set loading state
-
-    try {
-      const res = await fetch(`/api/replies?subthreadId=${subthreadId}`);
-      const data = await res.json();
-      setReplies((prev) => ({ ...prev, [subthreadId]: data }));
-    } catch (error) {
-      console.error("Failed to load replies:", error);
-    } finally {
-      setLoadingReplies((prev) => ({ ...prev, [subthreadId]: false })); // ✅ Remove loading state
+  const handleSave = () => {
+    if (editorRef.current) {
+      editorRef.current.getEditorContent();
     }
+    setValidate(true);
   };
-  console.log(thread.content);
+
+  const handleSubmit = async () => {
+    if (!error) {
+    }
+    console.log(savedContent);
+    setIsConfirmationVisible(!isConfirmationVisible);
+    setIsCommentVisible(!isCommentVisible);
+    setError(true);
+  };
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">{thread.title}</h1>
-      <p className="text-gray-500">
-        By {thread.user.username} |{" "}
-        {/* {new Date(thread.created_at).toLocaleString()} */}
-      </p>
-      <div
-        className="mt-1"
-        dangerouslySetInnerHTML={{ __html: thread.content }} // ✅ Must be an object
-      ></div>
-      <h2 className="mt-4 text-xl font-semibold">Subthreads</h2>
-      {thread.subthreads.map((subthread) => (
-        <div key={subthread.subthread_id} className="p-3 mt-2 border rounded">
-          <p className="font-semibold">{subthread.title}</p>
-          <p className="text-sm text-gray-500">By {subthread.user.username}</p>
-          <div
-            className="mt-1"
-            dangerouslySetInnerHTML={{ __html: subthread.content }} // ✅ Must be an object
-          ></div>
-
-          <button
-            className="mt-2 text-blue-500 underline"
-            onClick={() => fetchReplies(subthread.subthread_id)}
-            disabled={loadingReplies[subthread.subthread_id]}
-          >
-            {loadingReplies[subthread.subthread_id]
-              ? "Loading..."
-              : "See Replies"}
-          </button>
-
-          {/* ✅ Show Replies only after they are loaded */}
-          {replies[subthread.subthread_id] && (
-            <div className="mt-2 pl-4 border-l-2 border-gray-400">
-              {replies[subthread.subthread_id].length > 0 ? (
-                replies[subthread.subthread_id].map((reply) => (
-                  <div key={reply.reply_id} className="mt-1">
-                    <p className="text-sm text-gray-700">
-                      <strong>{reply.user.username}</strong>:{" "}
-                      <div
-                        className="mt-1"
-                        dangerouslySetInnerHTML={{ __html: reply.content }} // ✅ Must be an object
-                      ></div>
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">No replies yet.</p>
-              )}
+    <>
+      <Navbar></Navbar>
+      <div className="flex gap-10 rounded-md">
+        <div className="w-full">
+          <SubThreadCard
+            thread={thread}
+            availableCategories={availableCategories}
+          />
+          <div className="flex justify-between items-center flex-row mt-3">
+            <div className="ml-24 flex gap-3 ">
+              <p>Sort : </p>
+              <p
+                onClick={toggleSortBy}
+                className="hover:cursor-pointer hover:text-popover flex items-center gap-3"
+              >
+                {sortBy} {sortBy === "Oldest" ? <IoArrowUp /> : <IoArrowDown />}
+              </p>
+            </div>
+            <div
+              className="hover:cursor-pointer hover:text-popover mr-7"
+              onClick={() => setIsCommentVisible(!isCommentVisible)}
+            >
+              <IoChatbubbleOutline size={28} />
+            </div>
+          </div>
+          {isCommentVisible && (
+            <div className="mt-4 ml-20 bg-primary rounded-md ">
+              <h1 className="pt-2 text-xl ml-5 text-primary-foreground">
+                Your Answer
+              </h1>
+              <div className="ml-5 mr-5">
+                <RichTextEditorComponent
+                  ref={editorRef}
+                  onSubmit={setSavedContent}
+                />
+                <p className="text-[0.8rem] font-medium text-destructive m-1">
+                  {errorMessage}
+                </p>
+                <div className="flex items-center">
+                  <Button
+                    className="button bg-popover-foreground m-2"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    className="button bg-popover-foreground m-2"
+                    onClick={handleSubmit}
+                  >
+                    Submit
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
+          <div className="">
+            {isConfirmationVisible && (
+              <AnswerConfirmation
+                onConfirm={() =>
+                  setIsConfirmationVisible(!isConfirmationVisible)
+                }
+              />
+            )}
+            {thread.subthreads.length > 0 ? (
+              thread.subthreads.map((subthread) => (
+                <AnswerCard subThread={subthread}></AnswerCard>
+              ))
+            ) : (
+              <p className="ml-24 mt-4 text-destructive text-center">
+                No subthreads available
+              </p>
+            )}
+          </div>
         </div>
-      ))}
-    </div>
+      </div>
+    </>
   );
 }

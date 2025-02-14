@@ -1,20 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { categoriesTable, InsertThread, repliesTable, subThreadsTable, threadCategoriesTable, threadsTable, usersTable } from "@/schema";
+import { categoriesTable, InsertThread, repliesTable, subThreadsTable, threadCategoriesTable, threadsTable, userProfilesTable, usersTable } from "@/schema";
 import { and, eq, inArray, sql } from "drizzle-orm";
-
-interface Thread {
-  thread_id: number;
-  title: string;
-  content: string;
-  created_at: string;
-  user_id: number;
-  username: string;
-  up_vote: number;
-  sub_thread_count: number;
-  categories: string[];
-}
 
 export async function createThread(
   user_id: number,
@@ -213,6 +201,7 @@ export async function getThreadDetail(threadId: number) {
       category_name: categoriesTable.category_name,
       title: threadsTable.title,
       content: threadsTable.content,
+      up_vote: threadsTable.up_vote,
       thread_type: threadsTable.thread_type,
       created_at: threadsTable.created_at,
       updated_at: threadsTable.updated_at,
@@ -221,9 +210,10 @@ export async function getThreadDetail(threadId: number) {
       subthread_id: subThreadsTable.subthread_id,
       subthread_userid: subThreadsTable.user_id,
       subthread_username: sql<string>`(SELECT username FROM ${usersTable} WHERE ${usersTable.user_id} = ${subThreadsTable.user_id})`,
-      subthread_title: subThreadsTable.title,
       subthread_content: subThreadsTable.content,
+      subhtread_up_vote: subThreadsTable.up_vote,
       subthread_is_ai_generated: subThreadsTable.is_ai_generated,
+      subthread_profile: userProfilesTable.profile_picture,
       subthread_created_at: subThreadsTable.created_at,
       subthread_updated_at: subThreadsTable.updated_at,
     })
@@ -232,6 +222,7 @@ export async function getThreadDetail(threadId: number) {
     .leftJoin(threadCategoriesTable, eq(threadsTable.thread_id, threadCategoriesTable.thread_id))
     .leftJoin(categoriesTable, eq(threadCategoriesTable.category_id, categoriesTable.category_id))
     .leftJoin(subThreadsTable, eq(threadsTable.thread_id, subThreadsTable.thread_id))
+    .leftJoin(userProfilesTable, eq(subThreadsTable.user_id, userProfilesTable.user_id))
     .where(eq(threadsTable.thread_id, threadId))
     .groupBy(
       threadsTable.thread_id,
@@ -240,11 +231,11 @@ export async function getThreadDetail(threadId: number) {
       categoriesTable.category_name,
       subThreadsTable.subthread_id,
       subThreadsTable.user_id,
-      subThreadsTable.title,
       subThreadsTable.content,
       subThreadsTable.is_ai_generated,
       subThreadsTable.created_at,
-      subThreadsTable.updated_at
+      subThreadsTable.updated_at,
+      userProfilesTable.profile_picture
     );
 
   // ✅ Ensure thread data is always valid
@@ -260,6 +251,7 @@ export async function getThreadDetail(threadId: number) {
     })),
     title: result[0]?.title ?? "Untitled Thread",
     content: result[0]?.content ?? "No content available.",
+    up_vote: result[0]?.up_vote ?? 0,
     thread_type: result[0]?.thread_type ?? "general",
     created_at: result[0]?.created_at?.toISOString() ?? new Date().toISOString(),
     updated_at: result[0]?.updated_at?.toISOString() ?? null,
@@ -271,8 +263,9 @@ export async function getThreadDetail(threadId: number) {
           id: sub.subthread_userid ?? 0, // ✅ Ensure number
           username: sub.subthread_username ?? "Unknown",
         },
-        title: sub.subthread_title ?? "Untitled Subthread",
         content: sub.subthread_content ?? "No content available.",
+        up_vote: sub.subhtread_up_vote ?? 0,
+        profile_picture: sub.subthread_profile?? "",
         is_ai_generated: sub.subthread_is_ai_generated ?? false, // ✅ Default to false
         created_at: sub.subthread_created_at?.toISOString() ?? new Date().toISOString(),
         updated_at: sub.subthread_updated_at?.toISOString() ?? null,
@@ -313,9 +306,9 @@ export async function createSubThread(threadId: number, userId: number, title: s
     await db.insert(subThreadsTable).values({
       thread_id: threadId,
       user_id: userId,
-      title:title,
       content:content,
       is_ai_generated: false,
+      up_vote: 0,
       created_at: new Date(),
       updated_at: new Date(),
     });

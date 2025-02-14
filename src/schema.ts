@@ -131,9 +131,9 @@ export const subThreadsTable = pgTable("subthreads", {
         .notNull()
         .references(() => threadsTable.thread_id),
     user_id: integer().references(() => usersTable.user_id),
-    title: varchar({ length: 255 }).notNull(),
     content: text().notNull(),
     is_ai_generated: boolean().notNull().default(false),
+    up_vote: integer().notNull(),
     created_at: timestamp({ mode: "date" }).notNull().defaultNow(),
     updated_at: timestamp({ mode: "date" })
         .notNull()

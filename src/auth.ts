@@ -47,35 +47,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const credentialsEmail: string = email;
                 const credentialsPassword: string = password;
 
-                const saltRounds = 10;
-                // const hashedPassword = await bcrypt.hash(
-                //     credentialsPassword,
-                //     saltRounds
-                // );
-
                 // debug purposes
-                const hashedPassword = credentialsPassword;
+                // const hashedPassword = credentialsPassword;
 
                 // use server action to try and fetch user
-                user = await getUserByCredentials(
-                    credentialsEmail,
-                    hashedPassword
-                );
+                user = await getUserByEmail(credentialsEmail);
 
-                console.log("USER: " + user);
+                if(user == null){
+                    throw new Error("User Not Found!");
+                }
 
-                if (!user) {
-                    user = await getUserByEmail(credentialsEmail);
+                if (user.password === null) {
+                    throw new InvalidCredentialsError(
+                        "This email is registered using a provider! Try logging in with a provider instead!"
+                    );
+                }
 
-                    if (user && user.password === null) {
-                        throw new InvalidCredentialsError(
-                            "This email is registered using a provider! Try logging in with a provider instead!"
-                        );
-                    }
+                const isMatch = await bcrypt.compare(credentialsPassword, user.password);
 
-                    // No user found, so this is their first attempt to login
-                    // Optionally, this is also the place you could do a user registration
-                    throw new InvalidCredentialsError("Invalid Credentials!");
+                if (!isMatch) {
+                    throw new Error("Invalid Credentials");
                 }
 
                 // return user object with their profile data

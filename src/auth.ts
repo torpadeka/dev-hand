@@ -5,6 +5,7 @@ import { getUserByEmail, registerUser } from "./actions/user-queries";
 import bcrypt from "bcryptjs";
 import Google from "@auth/core/providers/google";
 import GitHub from "@auth/core/providers/github";
+import Discord from "@auth/core/providers/discord";
 import { randomInt } from "crypto";
 
 class InvalidCredentialsError extends AuthError {
@@ -78,6 +79,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         GitHub({
             clientId: process.env.AUTH_GITHUB_ID,
             clientSecret: process.env.AUTH_GITHUB_SECRET,
+        }),
+        Discord({
+            clientId: process.env.AUTH_DISCORD_ID,
+            clientSecret: process.env.AUTH_DISCORD_SECRET,
         }),
     ],
     pages: {

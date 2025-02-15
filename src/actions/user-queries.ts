@@ -36,14 +36,13 @@ export async function registerUser(formData: any) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(formData.password, saltRounds);
 
-    const checkUser: any = db
+    const checkUser: any = await db
         .select()
         .from(usersTable)
         .where(eq(usersTable.email, formData.email));
 
-    console.log(formData.username)
     console.log(formData.email)
-    console.log(formData.password)
+    console.log(checkUser[0])
 
     if (checkUser[0] == null) {
         await db.insert(usersTable).values({
@@ -51,8 +50,6 @@ export async function registerUser(formData: any) {
             email: formData.email,
             password: hashedPassword,
         });
-
-        console.log("INSERTED")
 
         return { success: true, message: "Register successful!" };
     }

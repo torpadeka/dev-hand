@@ -5,21 +5,12 @@ import { getUserByCredentials, getUserByEmail } from "./actions/user-queries";
 import bcrypt from "bcryptjs";
 import Google from "@auth/core/providers/google";
 
-export class InvalidCredentialsError extends AuthError {
+class InvalidCredentialsError extends AuthError {
     constructor(message: string) {
         super();
         this.message = message;
     }
 }
-
-// export class EmailAlreadyExistsError extends AuthError {
-//     code = "email_already_exists";
-//     errorMessage: string;
-//     constructor(message?: any, errorOptions?: any) {
-//         super(message, errorOptions);
-//         this.errorMessage = message;
-//     }
-// }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -54,7 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 user = await getUserByEmail(credentialsEmail);
 
                 if(user == null){
-                    throw new Error("User Not Found!");
+                    throw new InvalidCredentialsError("User not found!");
                 }
 
                 if (user.password === null) {
@@ -66,7 +57,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const isMatch = await bcrypt.compare(credentialsPassword, user.password);
 
                 if (!isMatch) {
-                    throw new Error("Invalid Credentials");
+                    console.log("PASS MISMATCH");
+                    throw new InvalidCredentialsError("Invalid credentials!");
                 }
 
                 // return user object with their profile data

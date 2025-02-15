@@ -11,7 +11,7 @@ export default async function Register() {
     if (session?.user) {
         redirect("/");
     }
-
+    
     return (
         <div className="w-screen h-screen flex items-center justify-center gap-8">
             <div className="flex flex-col items-center justify-center gap-4 bg-background">

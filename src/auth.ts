@@ -1,9 +1,11 @@
 import NextAuth, { AuthError } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { SelectUser } from "./schema";
-import { getUserByCredentials, getUserByEmail } from "./actions/user-queries";
+import { getUserByEmail, registerUser } from "./actions/user-queries";
 import bcrypt from "bcryptjs";
 import Google from "@auth/core/providers/google";
+import GitHub from "@auth/core/providers/github";
+import { randomInt } from "crypto";
 
 class InvalidCredentialsError extends AuthError {
     constructor(message: string) {
@@ -44,17 +46,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // use server action to try and fetch user
                 user = await getUserByEmail(credentialsEmail);
 
-                if(user == null){
+                if (user == null) {
                     throw new InvalidCredentialsError("User not found!");
                 }
 
                 if (user.password === null) {
                     throw new InvalidCredentialsError(
-                        "This email is registered using a provider! Try logging in with a provider instead!"
+                        "This email was registered using an OAuth provider and has no password set! Try logging in with a provider instead!"
                     );
                 }
 
-                const isMatch = await bcrypt.compare(credentialsPassword, user.password);
+                const isMatch = await bcrypt.compare(
+                    credentialsPassword,
+                    user.password
+                );
 
                 if (!isMatch) {
                     console.log("PASS MISMATCH");
@@ -62,12 +67,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
 
                 // return user object with their profile data
-                return user;
+                // Map user_id to id so NextAuth knows it
+                return { ...user, id: user.user_id.toString() };
             },
         }),
         Google({
             clientId: process.env.AUTH_GOOGLE_ID,
             clientSecret: process.env.AUTH_GOOGLE_SECRET,
+        }),
+        GitHub({
+            clientId: process.env.AUTH_GITHUB_ID,
+            clientSecret: process.env.AUTH_GITHUB_SECRET,
         }),
     ],
     pages: {
@@ -75,6 +85,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         signOut: "/auth/logout",
     },
     callbacks: {
+        // This callback is called whenever a JSON Web Token is created or updated.
+        async jwt({ token, user }) {
+            // When the user is first created, attach the user's ID
+            if (user) {
+                token.id = user.id;
+            }
+            return token;
+        },
+        // This callback is called whenever a session is checked.
+        async session({ session, token }) {
+            // Attach the user ID from the token to the session
+            if (token && session.user) {
+                session.user.id = token.id as string;
+            }
+            return session;
+        },
         async signIn({ user, account, profile, email, credentials }) {
             if (account?.provider == "credentials") {
                 if (!user) {
@@ -85,13 +111,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 return true;
             }
 
-            if (account?.provider == "google") {
-                return true;
+            // if using OAuth
+            if (profile && profile.email) {
+                const checkUser = await getUserByEmail(profile.email);
+
+                console.log("Checking profile.email:", profile.email);
+                console.log("checkUser register", checkUser);
+
+                if (!checkUser) {
+                    console.log("Registering from AUTH...");
+                    await registerUser({
+                        email: profile.email,
+                        username:
+                            profile.name ||
+                            "devhanduser" + randomInt(1000, 99999),
+                        password: null,
+                    });
+                }
             }
 
-            // the code should never reach this point, but this is added
-            // to prevent errors
-            return false;
+            return true;
         },
     },
     session: {

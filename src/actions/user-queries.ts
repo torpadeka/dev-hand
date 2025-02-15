@@ -7,20 +7,6 @@ import bcrypt from "bcryptjs";
 
 type SelectUserType = SelectUser;
 
-export async function getUserByCredentials(
-    email: string,
-    password: string
-): Promise<SelectUser | null> {
-    const rows: any = await db
-        .select()
-        .from(usersTable)
-        .where(
-            and(eq(usersTable.email, email), eq(usersTable.password, password))
-        );
-
-    return rows[0];
-}
-
 export async function getUserByEmail(
     email: string
 ): Promise<SelectUser | null> {
@@ -34,17 +20,21 @@ export async function getUserByEmail(
 
 export async function registerUser(formData: any) {
     const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(formData.password, saltRounds);
+    let hashedPassword;
+
+    if (formData.password) {
+        hashedPassword = await bcrypt.hash(formData.password, saltRounds);
+    } else {
+        hashedPassword = null;
+    }
 
     const checkUser: any = await db
         .select()
         .from(usersTable)
         .where(eq(usersTable.email, formData.email));
 
-    console.log(formData.email)
-    console.log(checkUser[0])
-
-    if (checkUser[0] == null) {
+    if (!checkUser[0]) {
+        console.log("REGISTERING");
         await db.insert(usersTable).values({
             username: formData.username,
             email: formData.email,
@@ -53,7 +43,7 @@ export async function registerUser(formData: any) {
 
         return { success: true, message: "Register successful!" };
     }
-    
+
     return {
         success: false,
         message: "This email is already registered!",

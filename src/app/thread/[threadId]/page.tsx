@@ -11,8 +11,11 @@ export default async function ThreadPage(props: {
 
   const [session, threadData, categories] = await Promise.all([
     auth(), // Get user session
-    getThreadDetail(Number.parseInt(threadId)), // Fetch thread & subthreads
-    selectAllCategoryName(), // Fetch available categories
+    getThreadDetail(Number.parseInt(threadId)).then((data) => ({
+      ...data,
+      categories: data.categories.map((name) => ({ id: null, name })),
+    })),
+    selectAllCategoryName(),
   ]);
 
   let user = null;
@@ -31,21 +34,21 @@ export default async function ThreadPage(props: {
     </div>
   );
   {
-    /* <div className="flex mt-5 mr-5 w-[36rem] bg-primary rounded-xl text-primary-foreground flex-col items-center pl-5 pr-5">
-          <h1 className="text-2xl mt-3">Similar Topic</h1>
-          <div className="h-[2px] w-full bg-background mt-3"></div>
-          <div className="flex flex-col gap-1">
-            {threads.map((thread, index) => (
-              <div className="" key={index}>
-                <SidebarThreads
-                  num={index + 1}
-                  title={thread.title}
-                  createdAt={thread.createdAt}
-                  author={thread.author}
-                />
-              </div>
-            ))}
-          </div>
-        </div> */
+    // /* <div className="flex mt-5 mr-5 w-[36rem] bg-primary rounded-xl text-primary-foreground flex-col items-center pl-5 pr-5">
+    //       <h1 className="text-2xl mt-3">Similar Topic</h1>
+    //       <div className="h-[2px] w-full bg-background mt-3"></div>
+    //       <div className="flex flex-col gap-1">
+    //         {threads.map((thread, index) => (
+    //           <div className="" key={index}>
+    //             <SidebarThreads
+    //               num={index + 1}
+    //               title={thread.title}
+    //               createdAt={thread.createdAt}
+    //               author={thread.author}
+    //             />
+    //           </div>
+    //         ))}
+    //       </div>
+    //     </div> */
   }
 }

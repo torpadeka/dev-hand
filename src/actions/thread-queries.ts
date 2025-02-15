@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { categoriesTable, InsertThread, repliesTable, subThreadsTable, threadCategoriesTable, threadsTable, userProfilesTable, usersTable } from "@/schema";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
 export async function createThread(
   user_id: number,
@@ -53,11 +53,7 @@ export async function createThread(
 //     .leftJoin(threadCategoriesTable, eq(threadsTable.thread_id, threadCategoriesTable.thread_id))
 //     .leftJoin(categoriesTable, eq(threadCategoriesTable.category_id, categoriesTable.category_id))
 //     .leftJoin(subThreadsTable, eq(threadsTable.thread_id, subThreadsTable.thread_id))
-//     .leftJoin(usersTable, eq(threadsTable.user_id, usersTable.user_id)).where(
-//       selectedCategories.length > 0
-//         ? inArray(categoriesTable.category_name, selectedCategories) // ✅ Same filtering applied here
-//         : undefined
-//     )
+//     .leftJoin(usersTable, eq(threadsTable.user_id, usersTable.user_id))
 //     .groupBy(
 //       threadsTable.thread_id,
 //       threadsTable.title,
@@ -181,10 +177,10 @@ export async function getAllThreadsWithCategories(
       user_id: row.user_id,
       username: row.username,
       up_vote: row.up_vote,
-      sub_thread_count: row.sub_thread_count,
-      categories: row.categories || [], // ✅ Show all categories even when filtering
+      sub_thread_count: row.sub_thread_count/row.categories.length,
+      categories: row.categories || [],
     })),
-    total_count: totalThreads, // ✅ Return correct total count
+    total_count: totalThreads,
     total_pages: Math.ceil(totalThreads / limit),
     current_page: page,
   };
@@ -244,7 +240,7 @@ export async function getThreadDetail(threadId: number) {
   result.forEach(sub => {
     if (sub.subthread_id !== null && !uniqueSubthreads.has(sub.subthread_id)) {
       uniqueSubthreads.set(sub.subthread_id, {
-        subthread_id: sub.subthread_id ?? 0, // ✅ Ensure number
+        subthread_id: sub.subthread_id ?? 0,
         user: {
           id: sub.subthread_userid ?? 0,
           username: sub.subthread_username ?? "Unknown",
@@ -315,3 +311,101 @@ export async function createSubThread(threadId: number, userId: number, content:
       updated_at: new Date(),
     });
   }
+
+  export async function getNewestThreads(limit: number = 10) {
+  const result = await db
+    .select({
+      thread_id: threadsTable.thread_id,
+      title: threadsTable.title,
+      content: threadsTable.content,
+      created_at: threadsTable.created_at,
+      user_id: threadsTable.user_id,
+      username: usersTable.username,
+      up_vote: threadsTable.up_vote,
+      category_name: categoriesTable.category_name,
+      sub_thread_count: sql<number>`COUNT(${subThreadsTable.subthread_id})`.as("sub_thread_count"),
+    })
+    .from(threadsTable)
+    .leftJoin(threadCategoriesTable, eq(threadsTable.thread_id, threadCategoriesTable.thread_id))
+    .leftJoin(categoriesTable, eq(threadCategoriesTable.category_id, categoriesTable.category_id))
+    .leftJoin(subThreadsTable, eq(threadsTable.thread_id, subThreadsTable.thread_id))
+    .leftJoin(usersTable, eq(threadsTable.user_id, usersTable.user_id))
+    .groupBy(
+      threadsTable.thread_id,
+      threadsTable.title,
+      threadsTable.content,
+      threadsTable.created_at,
+      threadsTable.user_id,
+      usersTable.username,
+      threadsTable.up_vote,
+      categoriesTable.category_name
+    )
+    .orderBy(desc(threadsTable.created_at)) // ✅ Order by newest threads first
+    .limit(limit); // ✅ Get only `n` newest threads
+
+  const threadsMap = new Map();
+
+  result.forEach((row) => {
+    const threadId = row.thread_id;
+    if (!threadsMap.has(threadId)) {
+      threadsMap.set(threadId, {
+        thread_id: row.thread_id,
+        title: row.title,
+        content: row.content,
+        created_at: row.created_at.toISOString(),
+        user_id: row.user_id,
+        username: row.username,
+        up_vote: row.up_vote,
+        sub_thread_count: row.sub_thread_count,
+        categories: [],
+      });
+    }
+
+    if (row.category_name) {
+      threadsMap.get(threadId).categories.push(row.category_name);
+    }
+  });
+
+  return {
+    threads: Array.from(threadsMap.values()), // ✅ Return newest threads without category filtering
+  };
+}
+
+export async function getHotTopicThreads(limit: number = 10) {
+  const result = await db
+    .select({
+      thread_id: threadsTable.thread_id,
+      title: threadsTable.title,
+      content: threadsTable.content,
+      created_at: threadsTable.created_at,
+      user_id: threadsTable.user_id,
+      username: usersTable.username,
+      up_vote: threadsTable.up_vote,
+      sub_thread_count: sql<number>`COUNT(${subThreadsTable.subthread_id})`.as("sub_thread_count"),
+    })
+    .from(threadsTable)
+    .leftJoin(subThreadsTable, eq(threadsTable.thread_id, subThreadsTable.thread_id))
+    .leftJoin(usersTable, eq(threadsTable.user_id, usersTable.user_id))
+    .groupBy(
+      threadsTable.thread_id,
+      threadsTable.title,
+      threadsTable.content,
+      threadsTable.created_at,
+      threadsTable.user_id,
+      usersTable.username,
+      threadsTable.up_vote
+    )
+    .orderBy(desc(sql<number>`COUNT(${subThreadsTable.subthread_id})`)) // ✅ Sort by most subthreads
+    .limit(limit); // ✅ Get only `n` hot topic threads
+
+  return result.map((row) => ({
+    thread_id: row.thread_id,
+    title: row.title,
+    content: row.content,
+    created_at: row.created_at.toISOString(),
+    user_id: row.user_id,
+    username: row.username,
+    up_vote: row.up_vote,
+    sub_thread_count: row.sub_thread_count, // ✅ Number of subthreads
+  }));
+}

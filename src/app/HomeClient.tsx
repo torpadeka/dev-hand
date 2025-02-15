@@ -14,6 +14,7 @@ import ThreadCard from "@/components/ThreadCard";
 import SidebarThreads from "@/components/SidebarThreads";
 import HomeCategorySelector from "@/components/HomeCategorySelector";
 import QuestionModal from "@/components/QuestionModal";
+import HomeSidebarThreads from "@/components/HomeSidebarThreads";
 
 interface HomeClientProps {
   categories: Map<number, string>;
@@ -174,41 +175,7 @@ export default function HomeClient({
         </div>
 
         <div className="w-1/3 my-4 mx-3 flex flex-col gap-3">
-          <div className="bg-primary rounded-[15px] p-3">
-            <div className="flex gap-2 justify-center text-primary-foreground text-xl mb-2 items-center">
-              <IoIosBonfire /> Hot Topic <IoIosBonfire />
-            </div>
-            <div className="h-[2px] w-full bg-background mt-3"></div>
-            <div className="flex flex-col gap-1">
-              {threads.map((thread, index) => (
-                <SidebarThreads
-                  key={index}
-                  num={index + 1}
-                  title={thread.title}
-                  createdAt={thread.created_at}
-                  author={thread.username}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-primary rounded-[15px] p-3">
-            <div className="flex gap-2 justify-center text-primary-foreground text-xl mb-2 items-center">
-              <IoIosRefresh /> Newest Forum <IoIosRefresh />
-            </div>
-            <div className="h-[2px] w-full bg-background mt-3"></div>
-            <div className="flex flex-col gap-1">
-              {threads.map((thread, index) => (
-                <SidebarThreads
-                  key={index}
-                  num={index + 1}
-                  title={thread.title}
-                  createdAt={thread.created_at}
-                  author={thread.username}
-                />
-              ))}
-            </div>
-          </div>
+          <HomeSidebarThreads />
         </div>
       </div>
 

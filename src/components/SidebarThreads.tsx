@@ -9,6 +9,7 @@ interface SidebarThreadsProps {
   title: string;
   author: string;
   createdAt: string;
+  subthreadCount: number;
 }
 
 export default function SidebarThreads({
@@ -16,6 +17,7 @@ export default function SidebarThreads({
   title,
   author,
   createdAt,
+  subthreadCount,
 }: SidebarThreadsProps) {
   let timeAgo = getTimeAgo(createdAt);
   return (
@@ -25,8 +27,13 @@ export default function SidebarThreads({
           <div className="text-chart-1 font-bold">#{num}</div>
           <div className="text-popover">{title}</div>
         </div>
-        <div className="text-sm text-primary-foreground/70 ml-8 mb-1">
-          by {author} ({timeAgo})
+        <div className="flex gap-1 justify-between mr-4">
+          <div className="text-sm text-primary-foreground/70 ml-8 mb-1">
+            by {author} ({timeAgo})
+          </div>
+          <div className="text-sm text-primary-foreground/70">
+            {subthreadCount} replies
+          </div>
         </div>
       </div>
     </div>

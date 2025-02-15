@@ -381,7 +381,7 @@ export async function getHotTopicThreads(limit: number = 10) {
       user_id: threadsTable.user_id,
       username: usersTable.username,
       up_vote: threadsTable.up_vote,
-      sub_thread_count: sql<number>`COUNT(${subThreadsTable.subthread_id})`.as("sub_thread_count"),
+      sub_thread_count: sql<number>`COUNT(DISTINCT ${subThreadsTable.subthread_id})`.as("sub_thread_count"), // ✅ Fixed syntax
     })
     .from(threadsTable)
     .leftJoin(subThreadsTable, eq(threadsTable.thread_id, subThreadsTable.thread_id))
@@ -395,17 +395,9 @@ export async function getHotTopicThreads(limit: number = 10) {
       usersTable.username,
       threadsTable.up_vote
     )
-    .orderBy(desc(sql<number>`COUNT(${subThreadsTable.subthread_id})`)) // ✅ Sort by most subthreads
-    .limit(limit); // ✅ Get only `n` hot topic threads
+    .orderBy(desc(sql<number>`COUNT(DISTINCT ${subThreadsTable.subthread_id})`)) // ✅ Corrected ORDER BY
+    .limit(limit);
 
-  return result.map((row) => ({
-    thread_id: row.thread_id,
-    title: row.title,
-    content: row.content,
-    created_at: row.created_at.toISOString(),
-    user_id: row.user_id,
-    username: row.username,
-    up_vote: row.up_vote,
-    sub_thread_count: row.sub_thread_count, // ✅ Number of subthreads
-  }));
+  return {threads: Array.from(result),};
 }
+

@@ -8,17 +8,18 @@ import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
 
 const content = "";
 
 interface RichTextEditorProps {
   onSubmit: (content: string) => void; // ✅ Function to send content to parent
+  clear: boolean; // ✅ Clear the editor content
 }
 
 const RichTextEditorComponent = forwardRef(
-  ({ onSubmit }: RichTextEditorProps, ref) => {
+  ({ onSubmit, clear }: RichTextEditorProps, ref) => {
     const [editorHtml, setEditorHtml] = useState("");
     const editor = useEditor({
       extensions: [
@@ -41,6 +42,10 @@ const RichTextEditorComponent = forwardRef(
         }
       },
     }));
+
+    useEffect(() => {
+      editor?.commands.clearContent();
+    }, [clear]);
 
     if (!editor)
       return <Skeleton className="h-[100px] w-full rounded-xl bg-background" />;

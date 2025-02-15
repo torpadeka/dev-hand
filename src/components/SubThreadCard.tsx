@@ -52,7 +52,7 @@ export default function SubThreadCard({
   let timeAgo = getTimeAgo(thread.created_at);
 
   return (
-    <div className="flex flex-col ml-20 mt-5 bg-primary rounded-xl pl-5">
+    <div className="flex flex-col ml-10 mt-5 bg-primary rounded-xl pl-5">
       <div className="flex mt-4">
         <div className="flex items-center gap-2">
           <p className="font-bold text-primary-foreground">{thread.up_vote}</p>

@@ -121,6 +121,7 @@ export default function CreateThreadClient({
                 <RichTextEditorComponent
                   ref={editorRef}
                   onSubmit={setSavedContent}
+                  clear={false}
                 />
                 <div className="text-destructive">{errorDetail}</div>
               </div>

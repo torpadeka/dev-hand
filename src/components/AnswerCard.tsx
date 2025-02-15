@@ -15,7 +15,7 @@ export default function AnswerCard({ subThread }: AnswerCardProps) {
   };
   let timeAgo = getTimeAgo(subThread.created_at);
   return (
-    <div className="flex flex-col justify-center items-center mt-5 ml-20 bg-primary rounded-xl text-primary-foreground">
+    <div className="flex flex-col justify-center items-center mt-5 ml-10 bg-primary rounded-xl text-primary-foreground">
       <div className="border-gray-500 border rounded-xl w-full pl-2">
         <div className="flex items-center mt-3 ml-3">
           <Avatar className="border-2 border-gray-700 rounded-xl w-12 h-12">

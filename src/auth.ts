@@ -7,6 +7,7 @@ import Google from "@auth/core/providers/google";
 import GitHub from "@auth/core/providers/github";
 import Discord from "@auth/core/providers/discord";
 import { randomInt } from "crypto";
+import { createUserProfile } from "./actions/user-profile-queries";
 
 class InvalidCredentialsError extends AuthError {
     constructor(message: string) {
@@ -79,6 +80,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         GitHub({
             clientId: process.env.AUTH_GITHUB_ID,
             clientSecret: process.env.AUTH_GITHUB_SECRET,
+            profile(profile) {
+                return {
+                    id: profile.id.toString(),
+                    name: profile.name,
+                    userName: profile.login,
+                    email: profile.email,
+                    image: profile.avatar_url,
+                };
+            },
         }),
         Discord({
             clientId: process.env.AUTH_DISCORD_ID,
@@ -117,21 +127,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             // if using OAuth
-            if (profile && profile.email) {
-                const checkUser = await getUserByEmail(profile.email);
-
-                console.log("Checking profile.email:", profile.email);
-                console.log("checkUser register", checkUser);
+            if (user && user.email) {
+                const checkUser = await getUserByEmail(user.email);
 
                 if (!checkUser) {
-                    console.log("Registering from AUTH...");
                     await registerUser({
-                        email: profile.email,
+                        email: user.email,
                         username:
-                            profile.name ||
-                            "devhanduser" + randomInt(1000, 99999),
+                            user.name || "devhanduser" + randomInt(1000, 99999),
                         password: null,
                     });
+
+                    let userId = (await getUserByEmail(user.email))?.user_id;
+                    let profilePicture = user.image || null;
+                    let githubLink: string | null = null;
+
+                    if (account?.provider === "github") {
+                        githubLink = "https://github.com/" + profile!.userName;
+                    }
+
+                    await createUserProfile(
+                        userId!,
+                        profilePicture,
+                        githubLink
+                    );
                 }
             }
 

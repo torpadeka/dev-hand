@@ -278,25 +278,30 @@ export async function getRepliesForSubthread(subthreadId: number) {
     .select({
       reply_id: repliesTable.reply_id,
       user_id: repliesTable.user_id,
-      username: sql<string>`(SELECT username FROM ${usersTable} WHERE ${usersTable.user_id} = ${repliesTable.user_id})`,
+      username: usersTable.username, // ✅ Now directly selected from usersTable
       content: repliesTable.content,
       created_at: repliesTable.created_at,
       updated_at: repliesTable.updated_at,
     })
     .from(repliesTable)
+    .leftJoin(usersTable, eq(usersTable.user_id, repliesTable.user_id)) // ✅ JOIN usersTable to get username
     .where(eq(repliesTable.subthread_id, subthreadId)); // ✅ Filter by single subthread
 
   // ✅ Transform the result into structured JSON
-  return result.map(reply => ({
+  result.map(reply => ({
     reply_id: reply.reply_id,
     user: {
       id: reply.user_id,
-      username: reply.username || "Unknown",
+      username: reply.username || "Unknown", // ✅ Ensure fallback username
     },
     content: reply.content,
     created_at: reply.created_at.toISOString(),
     updated_at: reply.updated_at?.toISOString() || null,
   }));
+
+  return {
+    result: Array.from(result.values()), // ✅ Return newest threads without category filtering
+  };
 }
 
 // Insert subthreads
@@ -311,6 +316,20 @@ export async function createSubThread(threadId: number, userId: number, content:
       updated_at: new Date(),
     });
   }
+
+  export async function createReply(
+  subthreadId: number,
+  userId: number,
+  content: string
+) {
+  await db.insert(repliesTable).values({
+    subthread_id: subthreadId,
+    user_id: userId,
+    content: content,
+    created_at: new Date(),
+    updated_at: new Date(),
+  });
+}
 
   export async function getNewestThreads(limit: number = 10) {
   const result = await db

@@ -70,6 +70,7 @@ export default function ThreadDetailClient({
       setErrorMessage("");
       setError(false);
     }
+    setValidate(false);
   }, [validate]);
 
   const handleSave = () => {
@@ -165,8 +166,11 @@ export default function ThreadDetailClient({
                       Save
                     </Button>
                     <Button
-                      className="button bg-popover-foreground m-2"
+                      className={`button bg-popover-foreground m-2 ${
+                        error ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                       onClick={handleSubmit}
+                      disabled={error}
                     >
                       Submit
                     </Button>
@@ -184,7 +188,11 @@ export default function ThreadDetailClient({
               )}
               {thread.subthreads.length > 0 ? (
                 thread.subthreads.map((subthread, index) => (
-                  <AnswerCard subThread={subthread} key={index}></AnswerCard>
+                  <AnswerCard
+                    subThread={subthread}
+                    key={index}
+                    user={user}
+                  ></AnswerCard>
                 ))
               ) : (
                 <p className="ml-24 mt-4 text-destructive text-center">

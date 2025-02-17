@@ -96,3 +96,30 @@ body {
 .slow-bounce {
   animation: slow-bounce 2s infinite;
 }
+
+pre {
+  background-color: var(--code-bg, #2d2d2d);
+  color: #ffffff;
+  padding: 12px;
+  border-radius: 5px;
+  max-height: 50vh;
+  overflow-x: auto;
+  border-radius: 10px;
+}
+
+pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+  border: none !important;
+}
+
+code {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #e63946;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace, "Courier New", Courier;
+  font-size: 14px;
+}

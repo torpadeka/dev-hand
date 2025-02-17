@@ -7,6 +7,9 @@ import RichTextEditorComponent from "./RichTextEditorComponent";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { createReply } from "@/actions/thread-queries";
+import ReplyCard from "./ReplyCard";
+import { motion } from "framer-motion";
+import { AnswerConfirmation } from "./AnswerConfirmation";
 
 interface AnswerCardProps {
   subThread: Subthread;
@@ -48,18 +51,21 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
   }, [validate]);
 
   const handleSubmit = async () => {
+    setIsConfirmationVisible(true);
+    console.log(isConfirmationVisible);
     if (!error) {
       await createReply(
         subThread.subthread_id || 0,
         user.user_id,
         savedContent
       );
-      console.log(savedContent);
+      console.log("show confirm");
       setClear(true);
-      setIsConfirmationVisible(false);
       setSavedContent("");
       router.refresh();
       setError(true);
+      setShowTextEditor(false);
+      console.log(isConfirmationVisible);
     }
   };
 
@@ -116,73 +122,90 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
         <div className="flex justify-between">
           <div className="ml-3 mb-3 flex gap-5 items-center ">
             <div
-              className="hover:cursor-pointer hover:text-popover flex items-center "
-              onClick={AddVotes}
-            >
-              <IoIosArrowUp />
-            </div>
-            <div
-              className="hover:cursor-pointer hover:text-popover flex items-center"
+              className="hover:cursor-pointer hover:text-popover flex items-center gap-2"
               onClick={handleToggleEditor}
             >
-              Reply
+              Reply{" "}
+              <motion.div
+                animate={{ rotate: showTextEditor ? 0 : 180 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <IoIosArrowUp className="w-4 h-4 text-primary-foreground" />
+              </motion.div>
             </div>
             <div
-              className="hover:cursor-pointer hover:text-popover flex items-center"
+              className="hover:cursor-pointer hover:text-popover flex items-center select-none gap-3"
               onClick={handleToggleReplies}
             >
-              Show Replies
+              {showReplies ? "Hide Replies" : "Show Replies"}
+              <motion.div
+                animate={{ rotate: showReplies ? 0 : 180 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <IoIosArrowUp className="w-4 h-4 text-primary-foreground" />
+              </motion.div>
             </div>
           </div>
           <div>
-            <p className="mr-5">{subThread.up_vote} upvotes</p>
+            <div
+              className="hover:cursor-pointer hover:text-popover flex items-center gap-3"
+              onClick={AddVotes}
+            >
+              <IoIosArrowUp />
+              <p className="mr-5">{subThread.up_vote} upvotes</p>
+            </div>
           </div>
         </div>
-      </div>
-      {showTextEditor ? (
-        <div className="w-full p-2">
-          <RichTextEditorComponent
-            ref={editorRef}
-            onSubmit={setSavedContent}
-            clear={clear}
-          />
-          <div className="text-destructive">{errorMessage}</div>
-          <Button
-            className="button bg-popover-foreground m-2"
-            onClick={handleSave}
-          >
-            Save
-          </Button>
-          <Button
-            className={`button bg-popover-foreground m-2 ${
-              error ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            onClick={handleSubmit}
-            disabled={error}
-          >
-            Submit
-          </Button>
-        </div>
-      ) : (
-        <div className=""></div>
-      )}
-      <div className="">
-        {showReplies ? (
-          replies ? (
-            replies.map((reply, index) => (
-              <div
-                key={index}
-                className=""
-                dangerouslySetInnerHTML={{ __html: reply.content }}
-              ></div>
-            ))
-          ) : (
-            <div className="">No Replies</div>
-          )
+        {showTextEditor ? (
+          <div className="w-full p-2">
+            <RichTextEditorComponent
+              ref={editorRef}
+              onSubmit={setSavedContent}
+              clear={clear}
+            />
+            <div className="text-destructive">{errorMessage}</div>
+            <Button
+              className="button bg-popover-foreground m-2"
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+            <Button
+              className={`button bg-popover-foreground m-2 ${
+                error ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onClick={handleSubmit}
+              disabled={error}
+            >
+              Submit
+            </Button>
+          </div>
         ) : (
           <div className=""></div>
         )}
+        <div className="w-full">
+          {showReplies ? (
+            replies ? (
+              replies.map((reply, index) => (
+                <div className="w-full" key={index}>
+                  <ReplyCard reply={reply} />
+                </div>
+              ))
+            ) : (
+              <div className="">No Replies</div>
+            )
+          ) : (
+            <div className=""></div>
+          )}
+        </div>
       </div>
+      {isConfirmationVisible && (
+        <div className="absolute w-full">
+          <AnswerConfirmation
+            onConfirm={() => setIsConfirmationVisible(!isConfirmationVisible)}
+          />
+        </div>
+      )}
     </div>
   );
 }

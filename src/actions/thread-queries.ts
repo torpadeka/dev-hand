@@ -287,21 +287,18 @@ export async function getRepliesForSubthread(subthreadId: number) {
     .leftJoin(usersTable, eq(usersTable.user_id, repliesTable.user_id)) // ✅ JOIN usersTable to get username
     .where(eq(repliesTable.subthread_id, subthreadId)); // ✅ Filter by single subthread
 
-  // ✅ Transform the result into structured JSON
-  result.map(reply => ({
+ return {
+  result: result.map(reply => ({
     reply_id: reply.reply_id,
     user: {
-      id: reply.user_id,
-      username: reply.username || "Unknown", // ✅ Ensure fallback username
+      id: reply.user_id ?? null,
+      username: reply.username ?? "Unknown",
     },
     content: reply.content,
     created_at: reply.created_at.toISOString(),
     updated_at: reply.updated_at?.toISOString() || null,
-  }));
-
-  return {
-    result: Array.from(result.values()), // ✅ Return newest threads without category filtering
-  };
+  })),
+};
 }
 
 // Insert subthreads

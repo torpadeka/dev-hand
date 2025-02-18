@@ -79,7 +79,10 @@ export default function SubThreadCard({
             />
           ))}
         </div>
-        <p className="mr-5">Asked {timeAgo}</p>
+        <div className="">
+          <p className="mr-5">Asked {timeAgo}</p>
+          <p className="mr-5 text-sm text-right">by {thread.user.username}</p>
+        </div>
       </div>
     </div>
   );

@@ -193,6 +193,7 @@ export async function getThreadDetail(threadId: number) {
       thread_id: threadsTable.thread_id,
       user_id: threadsTable.user_id,
       username: usersTable.username,
+      user_profile: userProfilesTable.profile_picture,
 
       // ✅ Aggregate categories to avoid duplication
       categories: sql<string[]>`ARRAY_AGG(DISTINCT ${categoriesTable.category_name}) FILTER (WHERE ${categoriesTable.category_name} IS NOT NULL)`.as("categories"),
@@ -244,6 +245,7 @@ export async function getThreadDetail(threadId: number) {
         user: {
           id: sub.subthread_userid ?? 0,
           username: sub.subthread_username ?? "Unknown",
+          profile_picture: sub.user_profile ?? "",
         },
         content: sub.subthread_content ?? "No content available.",
         up_vote: sub.subhtread_up_vote ?? 0,

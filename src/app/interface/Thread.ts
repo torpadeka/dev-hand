@@ -8,6 +8,7 @@ interface Thread {
   user: {
     id: number | null;
     username: string;
+    profile_picture: string;
   };
   up_vote: number;
   categories: { id: number | null; name: string | null }[];

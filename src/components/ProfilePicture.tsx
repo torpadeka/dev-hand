@@ -1,24 +1,28 @@
 interface ProfilePictureProps {
   link: string | null;
-  username: string;
+  username: string | null;
+  size: number; // Size in pixels
 }
 
 export default function ProfilePicture({
   link,
   username,
+  size,
 }: ProfilePictureProps) {
-  console.log(link);
   return (
-    <div className="">
-      {link != null ? (
+    <div>
+      {link ? (
         <img
           src={link}
           alt=""
-          className="bg-popover-foreground w-7 h-7 rounded-full flex items-center justify-center"
+          className={`rounded-full bg-popover-foreground w-${size} h-${size}`}
         />
       ) : (
-        <div className="bg-popover-foreground w-7 h-7 rounded-full flex items-center justify-center">
-          {username.charAt(0)}
+        <div
+          className={`rounded-full font-bold bg-popover-foreground flex items-center justify-center 
+                      w-${size} h-${size} text-${size * 0.4}`}
+        >
+          {username?.charAt(0)}
         </div>
       )}
     </div>

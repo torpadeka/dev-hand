@@ -10,6 +10,7 @@ import { createReply } from "@/actions/thread-queries";
 import ReplyCard from "./ReplyCard";
 import { motion } from "framer-motion";
 import { AnswerConfirmation } from "./AnswerConfirmation";
+import ProfilePicture from "./ProfilePicture";
 
 interface AnswerCardProps {
   subThread: Subthread;
@@ -84,12 +85,13 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
     <div className="flex flex-col justify-center items-center my-5 ml-10 bg-primary rounded-xl text-primary-foreground">
       <div className="border-gray-500 border rounded-xl w-full pl-2">
         <div className="flex items-center mt-3 ml-3">
-          <Avatar className="border-2 border-gray-700 rounded-xl w-12 h-12">
-            <AvatarImage></AvatarImage>
-            <AvatarFallback>SL</AvatarFallback>
-          </Avatar>
+          <ProfilePicture
+            link={subThread.user.profile_picture}
+            username={subThread.user.username}
+            size={10}
+          />
           <div className="text-sm flex flex-col ml-3">
-            <p>{subThread.user.username}</p>
+            <p className="font-bold text-base">{subThread.user.username}</p>
             <p>{timeAgo}</p>
           </div>
         </div>

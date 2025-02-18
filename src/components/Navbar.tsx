@@ -10,8 +10,11 @@ export default function Navbar() {
           <div className="font-bold text-2xl text-logo">Dev Hand</div>
         </div>
       </a>
-      <div>
-        <NavbarAvatar></NavbarAvatar>
+      <div className="flex items-center gap-10">
+        <a href="">Apply as Expert</a>
+        <div>
+          <NavbarAvatar></NavbarAvatar>
+        </div>
       </div>
     </div>
   );

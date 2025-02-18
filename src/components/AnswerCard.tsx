@@ -23,50 +23,28 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
   const [replies, setReplies] = useState<Reply[]>([]);
   const [loadingReplies, setLoadingReplies] = useState(true);
   const [savedContent, setSavedContent] = useState("");
-  const editorRef = useRef<{ getEditorContent: () => void } | null>(null);
   const [clear, setClear] = useState(true);
   const [validate, setValidate] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [error, setError] = useState(true);
   const router = useRouter();
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
 
-  const handleSave = () => {
-    if (editorRef.current) {
-      editorRef.current.getEditorContent();
-    }
-    setValidate(true);
-  };
-
-  useEffect(() => {
-    if (!validate) return;
+  const handleSubmit = async () => {
     if (savedContent.length < 25) {
       setErrorMessage("Reply must at least 25 characters!");
-      setError(true);
+      return;
     } else {
       setErrorMessage("");
-      setError(false);
     }
-    setValidate(false);
-  }, [validate]);
-
-  const handleSubmit = async () => {
     setIsConfirmationVisible(true);
     console.log(isConfirmationVisible);
-    if (!error) {
-      await createReply(
-        subThread.subthread_id || 0,
-        user.user_id,
-        savedContent
-      );
-      console.log("show confirm");
-      setClear(true);
-      setSavedContent("");
-      router.refresh();
-      setError(true);
-      setShowTextEditor(false);
-      console.log(isConfirmationVisible);
-    }
+    await createReply(subThread.subthread_id || 0, user.user_id, savedContent);
+    console.log("show confirm");
+    setClear(true);
+    setSavedContent("");
+    router.refresh();
+    setShowTextEditor(false);
+    console.log(isConfirmationVisible);
   };
 
   const handleToggleEditor = () => {
@@ -157,33 +135,28 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
           </div>
         </div>
         {showTextEditor ? (
-          <div className="w-full p-2">
-            <RichTextEditorComponent
-              ref={editorRef}
-              onSubmit={setSavedContent}
-              clear={clear}
-            />
+          <div className="w-full p-2 flex flex-col ml-2">
+            <div className="flex">
+              <input
+                name=""
+                id=""
+                onChange={(e) => setSavedContent(e.target.value)}
+                value={savedContent}
+                className="bg-primary border-[1px] p-1 rounded-xl w-4/5"
+              />
+              <Button
+                className={`button bg-popover-foreground mx-2`}
+                onClick={handleSubmit}
+              >
+                Submit
+              </Button>
+            </div>
             <div className="text-destructive">{errorMessage}</div>
-            <Button
-              className="button bg-popover-foreground m-2"
-              onClick={handleSave}
-            >
-              Save
-            </Button>
-            <Button
-              className={`button bg-popover-foreground m-2 ${
-                error ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              onClick={handleSubmit}
-              disabled={error}
-            >
-              Submit
-            </Button>
           </div>
         ) : (
           <div className=""></div>
         )}
-        <div className="w-full">
+        <div className="w-full mb-4">
           {showReplies ? (
             replies ? (
               replies.map((reply, index) => (

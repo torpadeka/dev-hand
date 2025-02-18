@@ -3,6 +3,7 @@ interface Reply {
   user: {
     id: number;
     username: string;
+    profile_picture: string;
   };
   content: string;
   created_at: string;

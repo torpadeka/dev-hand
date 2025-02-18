@@ -278,13 +278,15 @@ export async function getRepliesForSubthread(subthreadId: number) {
     .select({
       reply_id: repliesTable.reply_id,
       user_id: repliesTable.user_id,
-      username: usersTable.username, // ✅ Now directly selected from usersTable
+      username: usersTable.username,
+      profile_picture: userProfilesTable.profile_picture,
       content: repliesTable.content,
       created_at: repliesTable.created_at,
       updated_at: repliesTable.updated_at,
     })
     .from(repliesTable)
     .leftJoin(usersTable, eq(usersTable.user_id, repliesTable.user_id)) // ✅ JOIN usersTable to get username
+    .leftJoin(userProfilesTable, eq(usersTable.user_id, userProfilesTable.user_id)) // ✅ JOIN usersTable to get username
     .where(eq(repliesTable.subthread_id, subthreadId)); // ✅ Filter by single subthread
 
  return {
@@ -293,6 +295,7 @@ export async function getRepliesForSubthread(subthreadId: number) {
     user: {
       id: reply.user_id ?? null,
       username: reply.username ?? "Unknown",
+      profile_picture: reply.profile_picture ?? "",
     },
     content: reply.content,
     created_at: reply.created_at.toISOString(),

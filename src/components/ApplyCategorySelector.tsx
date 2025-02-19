@@ -33,7 +33,7 @@ const ApplyCategorySelector = forwardRef(
     );
 
     return (
-      <div className="max-w-lg">
+      <div className="">
         <div className="mb-2 text-lg text-primary-foreground">
           Select Your Expertise
         </div>

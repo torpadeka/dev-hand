@@ -1,7 +1,7 @@
 "use client";
 
+import ApplyCategorySelector from "@/components/ApplyCategorySelector";
 import CategorySelector from "@/components/CategorySelector";
-import Navbar from "@/components/Navbar";
 import React, { useState, useRef, FormEvent } from "react";
 
 interface ExpertApplicationFormProps {
@@ -41,7 +41,7 @@ export default function ExpertApplicationForm({
     formData.append("name", name);
     formData.append("github", github);
     certificates.forEach((file) => formData.append("certificates", file));
-    formData.append("expertiseCategory", JSON.stringify(selectedCategories)); // Pass selected categories as JSON
+    formData.append("expertiseCategory", JSON.stringify(selectedCategories));
     formData.append("aboutYourself", aboutYourself);
     formData.append("reason", reason);
     formData.append("additionalInfo", additionalInfo);
@@ -72,7 +72,7 @@ export default function ExpertApplicationForm({
       className="max-w-xl mx-auto p-6 bg-primary rounded-lg shadow-md"
     >
       <div className="mb-4">
-        <label className="block text-sm font-medium">Full Name</label>
+        <label className="block text-lg font-medium">Full Name</label>
         <input
           type="text"
           value={name}
@@ -83,7 +83,7 @@ export default function ExpertApplicationForm({
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium">GitHub Link</label>
+        <label className="block text-lg font-medium">GitHub Link</label>
         <input
           type="url"
           value={github}
@@ -94,7 +94,7 @@ export default function ExpertApplicationForm({
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium">Certificates</label>
+        <label className="block text-lg font-medium">Certificates</label>
         {certificates.map((certificate, index) => (
           <div className="" key={index}>
             {certificate.name}
@@ -104,13 +104,12 @@ export default function ExpertApplicationForm({
           type="file"
           onChange={handleCertificateChange}
           multiple
-          className="w-full text-sm p-2 border rounded-md"
+          className="w-full text-lg p-2 border rounded-md"
         />
       </div>
 
       <div className="mb-4">
-        SELECT YOUR EXPERTISE
-        <CategorySelector
+        <ApplyCategorySelector
           ref={categorySelectorRef}
           onSubmit={setSelectedCategories}
           categories={categoryMap}
@@ -118,7 +117,7 @@ export default function ExpertApplicationForm({
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium">
+        <label className="block text-lg font-medium">
           Tell me about yourself
         </label>
         <textarea
@@ -131,7 +130,7 @@ export default function ExpertApplicationForm({
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium">
+        <label className="block text-lg font-medium">
           Why do you want to be an expert?
         </label>
         <textarea
@@ -144,7 +143,7 @@ export default function ExpertApplicationForm({
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium">
+        <label className="block text-lg font-medium">
           Additional Information
         </label>
         <textarea

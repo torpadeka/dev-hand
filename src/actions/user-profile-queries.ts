@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import { userProfilesTable } from "@/schema";
+import { eq } from "drizzle-orm";
 
 export async function createUserProfile(
     userId: number,
@@ -13,4 +14,13 @@ export async function createUserProfile(
         profile_picture: profile_picture,
         github: github,
     });
+}
+
+export async function getUserProfile(userId: number) {
+    const rows = await db
+        .select()
+        .from(userProfilesTable)
+        .where(eq(userProfilesTable.user_id, userId));
+
+    return rows[0];
 }

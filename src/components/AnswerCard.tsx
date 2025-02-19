@@ -86,6 +86,7 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
       <div className="border-gray-500 border rounded-xl w-full pl-2">
         <div className="flex items-center mt-3 ml-3">
           <ProfilePicture
+            id={subThread.user.id}
             link={subThread.user.profile_picture}
             username={subThread.user.username}
             size={10}

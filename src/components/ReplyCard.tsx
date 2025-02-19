@@ -12,6 +12,7 @@ export default function ReplyCard({ reply }: ReplyCardProps) {
     <div className="flex mx-4 py-1 gap-3 border-0 ">
       <div className="flex items-start">
         <ProfilePicture
+          id={reply.user.id}
           link={reply.user.profile_picture}
           username={reply.user.username}
           size={7}

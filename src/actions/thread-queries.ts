@@ -262,6 +262,7 @@ export async function getThreadDetail(threadId: number) {
     user: {
       id: result[0]?.user_id ?? 0,
       username: result[0]?.username ?? "Unknown",
+      profile_picture: result[0]?.user_profile ?? ""
     },
     categories: result[0]?.categories ?? [], // ✅ Already aggregated in SQL
     title: result[0]?.title ?? "Untitled Thread",

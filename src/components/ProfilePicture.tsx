@@ -1,7 +1,8 @@
 interface ProfilePictureProps {
   link: string | null;
+  id: number;
   username: string | null;
-  size: number; // Size in pixels
+  size: number;
 }
 
 export default function ProfilePicture({

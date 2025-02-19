@@ -21,6 +21,6 @@ export async function getUserProfile(userId: number) {
         .select()
         .from(userProfilesTable)
         .where(eq(userProfilesTable.user_id, userId));
-
+    console.log(rows[0])
     return rows[0];
 }

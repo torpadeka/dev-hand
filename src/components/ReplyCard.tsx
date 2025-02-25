@@ -15,7 +15,7 @@ export default function ReplyCard({ reply }: ReplyCardProps) {
           id={reply.user.id}
           link={reply.user.profile_picture}
           username={reply.user.username}
-          size={7}
+          size={6}
         />
       </div>
       <div className="w-4/5 flex items-center">

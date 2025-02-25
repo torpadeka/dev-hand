@@ -11,7 +11,7 @@ export default function Navbar() {
         </div>
       </a>
       <div className="flex items-center gap-10">
-        <a href="">Apply as Expert</a>
+        <a href="/expert/apply">Apply as Expert</a>
         <div>
           <NavbarAvatar></NavbarAvatar>
         </div>

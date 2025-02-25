@@ -72,7 +72,7 @@ export default function Chatbot() {
         </h1>
 
         <textarea
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-black"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-white"
           placeholder="Ask me anything..."
           value={question}
           onChange={(e) => setQuestion(e.target.value)}

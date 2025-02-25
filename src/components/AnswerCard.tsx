@@ -94,7 +94,7 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
             size={10}
           />
           <div className="text-sm flex flex-col ml-3">
-            <p className="font-bold text-base flex">
+            <p className="font-bold text-base flex items-center gap-2">
               {subThread.user.username}
               {isExpert ? <IoDiamondSharp /> : ""}
             </p>

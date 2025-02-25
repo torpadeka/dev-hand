@@ -3,10 +3,10 @@ import { getUserProfile } from "@/actions/user-profile-queries";
 
 export async function GET(
     request: Request,
-    { params }: { params: { userId: string } }
+    userId: string
 ) {
     try {
-        const profile = await getUserProfile(Number(params.userId));
+        const profile = await getUserProfile(Number(userId));
         return NextResponse.json(profile, { status: 200 });
     } catch (error) {
         return NextResponse.json(

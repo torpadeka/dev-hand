@@ -10,6 +10,7 @@ import { createReply } from "@/actions/thread-queries";
 import ReplyCard from "./ReplyCard";
 import { motion } from "framer-motion";
 import { AnswerConfirmation } from "./AnswerConfirmation";
+import { IoDiamondSharp } from "react-icons/io5";
 import ProfilePicture from "./ProfilePicture";
 
 interface AnswerCardProps {
@@ -29,6 +30,7 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
+  const isExpert = true;
 
   const handleSubmit = async () => {
     if (savedContent.length < 25) {
@@ -92,7 +94,10 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
             size={10}
           />
           <div className="text-sm flex flex-col ml-3">
-            <p className="font-bold text-base">{subThread.user.username}</p>
+            <p className="font-bold text-base flex">
+              {subThread.user.username}
+              {isExpert ? <IoDiamondSharp /> : ""}
+            </p>
             <p>{timeAgo}</p>
           </div>
         </div>

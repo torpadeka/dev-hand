@@ -62,6 +62,7 @@ export default function HomeSidebarThreads() {
                 createdAt={thread.created_at}
                 author={thread?.username ?? "Unknown"}
                 subthreadCount={thread.sub_thread_count}
+                id={thread.thread_id}
               />
             ))}
         </div>
@@ -82,6 +83,7 @@ export default function HomeSidebarThreads() {
                 createdAt={thread.created_at}
                 author={thread?.username ?? "Unknown"}
                 subthreadCount={thread.sub_thread_count}
+                id={thread.thread_id}
               />
             ))}
         </div>

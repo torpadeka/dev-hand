@@ -1,3 +1,4 @@
+import { unique } from "drizzle-orm/pg-core";
 import {
     boolean,
     char,
@@ -160,3 +161,62 @@ export const repliesTable = pgTable("replies", {
 
 export type InsertReply = typeof repliesTable.$inferInsert;
 export type SelectReply = typeof repliesTable.$inferSelect;
+
+export const threadUpvotesTable = pgTable(
+  "thread_upvotes",
+  {
+    thread_upvote_id: serial("thread_upvote_id").primaryKey(),
+    thread_id: integer("thread_id")
+      .notNull()
+      .references(() => threadsTable.thread_id),
+    user_id: integer("user_id")
+      .notNull()
+      .references(() => usersTable.user_id),
+    created_at: timestamp("created_at", { mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updated_at: timestamp("updated_at", { mode: "date" })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueThreadUser: unique("unique_thread_user").on(
+      table.thread_id,
+      table.user_id
+    ),
+  })
+);
+
+// Define Insert and Select types
+export type InsertThreadUpvote = typeof threadUpvotesTable.$inferInsert;
+export type SelectThreadUpvote = typeof threadUpvotesTable.$inferSelect;
+
+export const subthreadUpvotesTable = pgTable(
+  "subthread_upvotes",
+  {
+    subthread_upvote_id: serial("subthread_upvote_id").primaryKey(),
+    subthread_id: integer("subthread_id")
+      .notNull()
+      .references(() => subThreadsTable.subthread_id),
+    user_id: integer("user_id")
+      .notNull()
+      .references(() => usersTable.user_id),
+    created_at: timestamp("created_at", { mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updated_at: timestamp("updated_at", { mode: "date" })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueSubthreadUser: unique("unique_subthread_user").on(
+      table.subthread_id,
+      table.user_id
+    ),
+  })
+);
+
+export type InsertSubthreadUpvote = typeof subthreadUpvotesTable.$inferInsert;
+export type SelectSubthreadUpvote = typeof subthreadUpvotesTable.$inferSelect;

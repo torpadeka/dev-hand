@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { categoriesTable, InsertThread, repliesTable, subThreadsTable, threadCategoriesTable, threadsTable, userProfilesTable, usersTable } from "@/schema";
+import { categoriesTable, InsertThread, repliesTable, subThreadsTable, subthreadUpvotesTable, threadCategoriesTable, threadsTable, threadUpvotesTable, userProfilesTable, usersTable } from "@/schema";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
 export async function createThread(
@@ -146,7 +146,11 @@ export async function getAllThreadsWithCategories(
       created_at: threadsTable.created_at,
       user_id: threadsTable.user_id,
       username: usersTable.username,
-      up_vote: threadsTable.up_vote,
+      up_vote: sql<number>`
+        (SELECT COUNT(*) 
+         FROM ${threadUpvotesTable} 
+         WHERE ${threadUpvotesTable.thread_id} = ${threadsTable.thread_id})
+      `.as("up_vote"),
       sub_thread_count: sql<number>`COUNT(${subThreadsTable.subthread_id})`.as("sub_thread_count"),
       categories: sql<string[]>`ARRAY_AGG(DISTINCT ${categoriesTable.category_name}) FILTER (WHERE ${categoriesTable.category_name} IS NOT NULL)`.as("categories") // ✅ Keep all categories
     })
@@ -200,7 +204,11 @@ export async function getThreadDetail(threadId: number) {
 
       title: threadsTable.title,
       content: threadsTable.content,
-      up_vote: threadsTable.up_vote,
+      up_vote: sql<number>`
+        (SELECT COUNT(*) 
+         FROM ${threadUpvotesTable} 
+         WHERE ${threadUpvotesTable.thread_id} = ${threadsTable.thread_id})
+      `.as("up_vote"),
       thread_type: threadsTable.thread_type,
       created_at: threadsTable.created_at,
       updated_at: threadsTable.updated_at,
@@ -210,7 +218,11 @@ export async function getThreadDetail(threadId: number) {
       subthread_userid: subThreadsTable.user_id,
       subthread_username: sql<string>`(SELECT username FROM ${usersTable} WHERE ${usersTable.user_id} = ${subThreadsTable.user_id})`,
       subthread_content: subThreadsTable.content,
-      subhtread_up_vote: subThreadsTable.up_vote,
+      subhtread_up_vote: sql<number>`
+        (SELECT COUNT(*) 
+         FROM ${subthreadUpvotesTable} 
+         WHERE ${subthreadUpvotesTable.subthread_id} = ${subThreadsTable.subthread_id})
+      `.as("up_vote"),
       subthread_is_ai_generated: subThreadsTable.is_ai_generated,
       subthread_profile: userProfilesTable.profile_picture,
       subthread_created_at: subThreadsTable.created_at,
@@ -343,7 +355,11 @@ export async function createSubThread(threadId: number, userId: number, content:
       created_at: threadsTable.created_at,
       user_id: threadsTable.user_id,
       username: usersTable.username,
-      up_vote: threadsTable.up_vote,
+      up_vote: sql<number>`
+        (SELECT COUNT(*) 
+         FROM ${threadUpvotesTable} 
+         WHERE ${threadUpvotesTable.thread_id} = ${threadsTable.thread_id})
+      `.as("up_vote"),
       category_name: categoriesTable.category_name,
       sub_thread_count: sql<number>`COUNT(${subThreadsTable.subthread_id})`.as("sub_thread_count"),
     })
@@ -402,7 +418,11 @@ export async function getHotTopicThreads(limit: number = 10) {
       created_at: threadsTable.created_at,
       user_id: threadsTable.user_id,
       username: usersTable.username,
-      up_vote: threadsTable.up_vote,
+      up_vote: sql<number>`
+        (SELECT COUNT(*) 
+         FROM ${threadUpvotesTable} 
+         WHERE ${threadUpvotesTable.thread_id} = ${threadsTable.thread_id})
+      `.as("up_vote"),
       sub_thread_count: sql<number>`COUNT(DISTINCT ${subThreadsTable.subthread_id})`.as("sub_thread_count"), // ✅ Fixed syntax
     })
     .from(threadsTable)

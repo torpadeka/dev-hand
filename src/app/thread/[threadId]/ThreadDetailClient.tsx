@@ -226,6 +226,7 @@ export default function ThreadDetailClient({
                       createdAt={thread.created_at}
                       author={thread?.username ?? "Unknown"}
                       subthreadCount={thread.sub_thread_count}
+                      id={thread.thread_id}
                     />
                   ))
                 )}

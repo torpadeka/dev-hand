@@ -18,6 +18,7 @@ import HomeSidebarThreads from "@/components/HomeSidebarThreads";
 
 interface HomeClientProps {
   categories: Map<number, string>;
+  session?: any;
 }
 
 interface Thread {
@@ -34,10 +35,12 @@ interface Thread {
 
 export default function HomeClient({
   categories /*, threads*/,
+  session,
 }: HomeClientProps) {
   const search = () => {
     console.log("Search");
   };
+  console.log(session);
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -141,6 +144,7 @@ export default function HomeClient({
                       key={index}
                       {...thread}
                       availableCategories={categories}
+                      curr_user_id={session?.user?.id}
                     />
                   ))
                 ) : (

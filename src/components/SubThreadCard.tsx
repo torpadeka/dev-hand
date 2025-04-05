@@ -66,7 +66,7 @@ export default function SubThreadCard({
         <p className="ml-4 text-2xl text-primary-foreground">{thread.title}</p>
       </div>
       <div
-        className="ml-12 my-4 "
+        className="ml-12 my-4 p-4"
         dangerouslySetInnerHTML={{ __html: thread.content }}
       ></div>
       <div className="flex justify-between items-center mt-1 mb-4 w-full">

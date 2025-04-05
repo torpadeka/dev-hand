@@ -3,8 +3,10 @@
 import { getTimeAgo } from "@/app/utils/timeAgo";
 import { Separator } from "@/components/ui/separator";
 import DateDiff from "date-diff";
+import { useRouter } from "next/navigation";
 
 interface SidebarThreadsProps {
+  id: number;
   num: number;
   title: string;
   author: string;
@@ -13,6 +15,7 @@ interface SidebarThreadsProps {
 }
 
 export default function SidebarThreads({
+  id,
   num,
   title,
   author,
@@ -20,8 +23,14 @@ export default function SidebarThreads({
   subthreadCount,
 }: SidebarThreadsProps) {
   let timeAgo = getTimeAgo(createdAt);
+  const router = useRouter();
   return (
-    <div className="text-primary-foreground p-2 border-0 border-b-[1px] border-background">
+    <div
+      className="text-primary-foreground p-2 border-0 border-b-[1px] border-background hover:bg-background/50 hover:cursor-pointer transition-all duration-200 ease-in-out"
+      onClick={() => {
+        router.push("/thread/" + id);
+      }}
+    >
       <div className="text-base">
         <div className="flex items-center gap-3">
           <div className="text-chart-1 font-bold">#{num}</div>

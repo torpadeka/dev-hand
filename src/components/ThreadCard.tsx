@@ -7,6 +7,7 @@ import DateDiff from "date-diff";
 import { redirect, useRouter } from "next/navigation";
 import { getTimeAgo } from "@/app/utils/timeAgo";
 import { auth } from "@/auth";
+import UpvoteButton from "./UpVote";
 
 interface ThreadCardProps {
   thread_id: number;
@@ -93,20 +94,12 @@ export default function ThreadCard({
     <>
       <div className="px-4 bg-primary rounded-xl flex justify-between items-center shadow-md w-full hover:cursor-pointer hover:shadow-primary">
         <div className="w-1/12 mr-3">
-          <div className="flex items-center gap-2 justify-center">
-            {upvoteCount}
-            <button
-              onClick={handleUpvote}
-              disabled={hasUpvoted}
-              className={`px-4 py-2 rounded ${
-                hasUpvoted
-                  ? "text-gray-400 hover:cursor-not-allowed"
-                  : " text-white hover:border-[1px]"
-              }`}
-            >
-              <IoIosArrowUp className="" />
-            </button>
-          </div>
+          <UpvoteButton
+            type="thread"
+            id={thread_id}
+            initialUpvoteCount={up_vote}
+            userId={curr_user_id}
+          />
         </div>
         <div
           className="w-9/12 flex flex-col pt-4 pb-2"

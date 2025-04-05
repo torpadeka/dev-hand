@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { AnswerConfirmation } from "./AnswerConfirmation";
 import { IoDiamondSharp } from "react-icons/io5";
 import ProfilePicture from "./ProfilePicture";
+import UpvoteButton from "./UpVote";
 
 interface AnswerCardProps {
   subThread: Subthread;
@@ -133,13 +134,12 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
             </div>
           </div>
           <div>
-            <div
-              className="hover:cursor-pointer hover:text-popover flex items-center gap-3"
-              onClick={AddVotes}
-            >
-              <IoIosArrowUp />
-              <p className="mr-5">{subThread.up_vote} upvotes</p>
-            </div>
+            <UpvoteButton
+              type="subthread"
+              id={subThread.subthread_id || 0}
+              initialUpvoteCount={subThread.up_vote}
+              userId={user.user_id}
+            />
           </div>
         </div>
         {showTextEditor ? (

@@ -125,6 +125,7 @@ export default function ThreadDetailClient({
             <SubThreadCard
               thread={thread}
               availableCategories={availableCategories}
+              user={user}
             />
             <div className="flex justify-between items-center flex-row mt-3">
               <div className="ml-14 flex gap-3 ">
@@ -187,13 +188,11 @@ export default function ThreadDetailClient({
                 />
               )}
               {thread.subthreads.length > 0 ? (
-                thread.subthreads.map((subthread, index) => (
-                  <AnswerCard
-                    subThread={subthread}
-                    key={index}
-                    user={user}
-                  ></AnswerCard>
-                ))
+                [...thread.subthreads]
+                  .sort((a, b) => b.up_vote - a.up_vote)
+                  .map((subthread, index) => (
+                    <AnswerCard subThread={subthread} key={index} user={user} />
+                  ))
               ) : (
                 <p className="ml-24 mt-4 text-destructive text-center">
                   No subthreads available

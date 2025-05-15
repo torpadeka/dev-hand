@@ -220,3 +220,50 @@ export const subthreadUpvotesTable = pgTable(
 
 export type InsertSubthreadUpvote = typeof subthreadUpvotesTable.$inferInsert;
 export type SelectSubthreadUpvote = typeof subthreadUpvotesTable.$inferSelect;
+
+export const expertApplicationsTable = pgTable("expert_applications", {
+  application_id: serial("application_id").primaryKey(),
+  user_id: integer("user_id")
+    .notNull()
+    .references(() => usersTable.user_id),
+  full_name: varchar("full_name", { length: 100 }).notNull(),
+  github_link: varchar("github_link", { length: 255 }),
+  about_self: text("about_self"),
+  reason: text("reason"),
+  additional_info: text("additional_info"),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  created_at: timestamp("created_at", { mode: "date" })
+    .notNull()
+    .defaultNow(),
+  updated_at: timestamp("updated_at", { mode: "date" })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export type InsertExpertApplication = typeof expertApplicationsTable.$inferInsert;
+export type SelectExpertApplication = typeof expertApplicationsTable.$inferSelect;
+
+export const expertApplicationCertificatesTable = pgTable("expert_application_certificates", {
+  certificate_id: serial("certificate_id").primaryKey(),
+  application_id: integer("application_id")
+    .notNull()
+    .references(() => expertApplicationsTable.application_id),
+  file_url: varchar("file_url", { length: 255 }).notNull(),
+  description: varchar("description", { length: 255 }).notNull(),
+});
+
+export type InsertExpertApplicationCertificate = typeof expertApplicationCertificatesTable.$inferInsert;
+export type SelectExpertApplicationCertificate = typeof expertApplicationCertificatesTable.$inferSelect;
+
+export const expertApplicationCategoriesTable = pgTable("expert_application_categories", {
+  application_id: integer("application_id")
+    .notNull()
+    .references(() => expertApplicationsTable.application_id),
+  category_id: integer("category_id")
+    .notNull()
+    .references(() => categoriesTable.category_id),
+});
+
+export type InsertExpertApplicationCategory = typeof expertApplicationCategoriesTable.$inferInsert;
+export type SelectExpertApplicationCategory = typeof expertApplicationCategoriesTable.$inferSelect;

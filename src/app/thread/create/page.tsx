@@ -8,16 +8,16 @@ import { selectAllCategoryName } from "@/actions/category-queries";
 export default async function CreateThreadPage() {
   const session = await auth();
   if (!session?.user) {
-    return redirect("/auth/login"); // ✅ Redirect early
+    return redirect("/auth/login");
   }
 
   const [categories, getUser] = await Promise.all([
     selectAllCategoryName(),
     getUserByEmail(session.user.email || ""),
-  ]); // ✅ Run both queries in parallel
+  ]);
 
   if (!getUser) {
-    return redirect("/auth/login"); // ✅ Extra safety check
+    return redirect("/auth/login");
   }
 
   return (

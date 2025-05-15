@@ -4,13 +4,16 @@ import ApplyCategorySelector from "@/components/ApplyCategorySelector";
 import CategorySelector from "@/components/CategorySelector";
 import CertificateUploader from "@/components/CertificateUploader";
 import React, { useState, useRef, FormEvent } from "react";
+import { put } from "@vercel/blob";
 
 interface ExpertApplicationFormProps {
   categoryMap: Map<number, string>;
+  userID: number;
 }
 
 export default function ExpertApplicationForm({
   categoryMap,
+  userID,
 }: ExpertApplicationFormProps) {
   const categories = Array.from(categoryMap, ([id, name]) => ({ id, name }));
 
@@ -23,36 +26,78 @@ export default function ExpertApplicationForm({
   const [reason, setReason] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [error, setError] = useState("");
   const categorySelectorRef = useRef<{
     getSelectedCategories: () => void;
   } | null>(null);
 
+  const validateForm = (): string | null => {
+    if (!name.trim()) return "Full name is required.";
+    if (!github.trim()) return "GitHub link is required.";
+    if (!github.startsWith("http")) return "GitHub link must be a valid URL.";
+    if (certificates.length === 0)
+      return "Please upload at least one certificate.";
+    if (certificates.some((c) => !c.description.trim()))
+      return "Each certificate must have a description.";
+    if (selectedCategories.length === 0)
+      return "Select at least one expertise category.";
+    if (!aboutYourself.trim()) return "Tell us about yourself.";
+    if (!reason.trim()) return "Please share your reason for applying.";
+    return null;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (categorySelectorRef.current) {
-      categorySelectorRef.current.getSelectedCategories();
-    }
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("github", github);
-    certificates.forEach(({ file, description }, index) => {
-      formData.append(`certificates[${index}]`, file);
-      formData.append(`certDescriptions[${index}]`, description);
-    });
-    formData.append("expertiseCategory", JSON.stringify(selectedCategories));
-    formData.append("aboutYourself", aboutYourself);
-    formData.append("reason", reason);
-    formData.append("additionalInfo", additionalInfo);
-
+    console.log("SELECTED", selectedCategories);
     try {
-      const res = await fetch("/api/apply-expert", {
+      const uploadedCertificates: { file_url: string; description: string }[] =
+        [];
+
+      for (const cert of certificates) {
+        const formData = new FormData();
+        formData.append("file", cert.file);
+        formData.append("filename", cert.file.name);
+
+        const res = await fetch("/api/upload-blob", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("Upload failed");
+
+        const { url } = await res.json();
+
+        uploadedCertificates.push({
+          file_url: url,
+          description: cert.description,
+        });
+      }
+
+      const payload = {
+        user_id: userID,
+        full_name: name,
+        github_link: github,
+        about_self: aboutYourself,
+        reason,
+        additional_info: additionalInfo,
+        expertise_category_names: selectedCategories,
+        certificate_urls: uploadedCertificates.map((c) => c.file_url),
+        certificate_descriptions: uploadedCertificates.map(
+          (c) => c.description
+        ),
+      };
+
+      const res = await fetch("/api/expert/apply-expert", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
+
       if (!res.ok) throw new Error("Submission failed");
+
       alert("Application submitted successfully!");
+
       setName("");
       setGithub("");
       setCertificates([]);
@@ -60,12 +105,25 @@ export default function ExpertApplicationForm({
       setAboutYourself("");
       setReason("");
       setAdditionalInfo("");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error submitting application:", error);
       alert("There was an error submitting your application.");
     }
   };
 
+  const handleSave = () => {
+    if (categorySelectorRef.current) {
+      categorySelectorRef.current.getSelectedCategories();
+    }
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      setIsSaved(false);
+    } else {
+      setError("");
+      setIsSaved(true);
+    }
+  };
   return (
     <form
       onSubmit={handleSubmit}
@@ -150,10 +208,28 @@ export default function ExpertApplicationForm({
           </div>
         </div>
       </div>
+      {error && (
+        <p className="text-red-500 text-xl mb-4 font-medium mt-2 text-center">
+          {error}
+        </p>
+      )}
 
       <button
+        type="button"
+        className="w-full py-2 px-4 mb-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
+        onClick={handleSave}
+      >
+        Save Application
+      </button>
+      <button
         type="submit"
-        className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
+        className={`w-full py-2 px-4 font-semibold rounded-md 
+                  ${
+                    isSaved
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      : "bg-gray-400 text-white cursor-not-allowed"
+                  }`}
+        disabled={!isSaved}
       >
         Submit Application
       </button>

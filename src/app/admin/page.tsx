@@ -84,7 +84,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <p className="text-foreground)/0.7)] mt-1">
+          <p className="text-foreground/70 mt-1">
             Overview of your application management system
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card className="bg-primary border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-foreground)/0.7)]">
+            <CardTitle className="text-sm font-medium text-foreground/70">
               Total Applications
             </CardTitle>
           </CardHeader>
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold">
                 {isLoading ? "..." : stats?.total || 0}
               </div>
-              <div className="p-2 bg-chart-3)/0.2)] rounded-full">
+              <div className="p-2 bg-chart-3/20 rounded-full">
                 <FileText className="h-5 w-5 text-chart-3" />
               </div>
             </div>
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
 
         <Card className="bg-primary border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-foreground)/0.7)]">
+            <CardTitle className="text-sm font-medium text-foreground/70">
               Pending Review
             </CardTitle>
           </CardHeader>
@@ -126,11 +126,11 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold">
                 {isLoading ? "..." : stats?.pending || 0}
               </div>
-              <div className="p-2 bg-chart-5)/0.2)] rounded-full">
+              <div className="p-2 bg-chart-5/20 rounded-full">
                 <Clock className="h-5 w-5 text-chart-5" />
               </div>
             </div>
-            <div className="flex items-center mt-2 text-xs text-foreground)/0.7)]">
+            <div className="flex items-center mt-2 text-xs text-foreground/70">
               <Activity className="h-3 w-3 mr-1" />
               <span>Requires your attention</span>
             </div>
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
 
         <Card className="bg-primary border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-foreground)/0.7)]">
+            <CardTitle className="text-sm font-medium text-foreground/70">
               Approved
             </CardTitle>
           </CardHeader>
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold">
                 {isLoading ? "..." : stats?.approved || 0}
               </div>
-              <div className="p-2 bg-chart-2)/0.2)] rounded-full">
+              <div className="p-2 bg-chart-2/20 rounded-full">
                 <CheckCircle2 className="h-5 w-5 text-chart-2" />
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
 
         <Card className="bg-primary border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-foreground)/0.7)]">
+            <CardTitle className="text-sm font-medium text-foreground/70">
               Rejected
             </CardTitle>
           </CardHeader>
@@ -166,7 +166,7 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold">
                 {isLoading ? "..." : stats?.rejected || 0}
               </div>
-              <div className="p-2 bg-chart-1)/0.2)] rounded-full">
+              <div className="p-2 bg-chart-1/20 rounded-full">
                 <XCircle className="h-5 w-5 text-chart-1" />
               </div>
             </div>
@@ -247,12 +247,12 @@ export default function AdminDashboard() {
                       key={activity.id}
                       className="flex items-start space-x-4"
                     >
-                      <div className="h-9 w-9 rounded-full bg-chart-4)/0.2)] flex items-center justify-center">
+                      <div className="h-9 w-9 rounded-full bg-chart-4/20 flex items-center justify-center">
                         <Activity className="h-5 w-5 text-chart-4" />
                       </div>
                       <div>
                         <p className="font-medium">{activity.action}</p>
-                        <p className="text-sm text-foreground)/0.7)]">
+                        <p className="text-sm text-foreground/70">
                           {activity.user} • {activity.time}
                         </p>
                       </div>

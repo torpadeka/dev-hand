@@ -9,6 +9,7 @@ interface Thread {
     id: number | null;
     username: string;
     profile_picture: string;
+    is_expert: boolean;
   };
   up_vote: number;
   categories: { id: number | null; name: string | null }[];

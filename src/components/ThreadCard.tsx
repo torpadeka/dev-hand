@@ -92,8 +92,8 @@ export default function ThreadCard({
 
   return (
     <>
-      <div className="px-4 bg-primary rounded-xl flex justify-between items-center shadow-md w-full hover:cursor-pointer hover:shadow-primary">
-        <div className="w-1/12 mr-3">
+      <div className="px-4 bg-primary rounded-xl flex justify-between items-center shadow-md w-full hover:cursor-pointer relative overflow-hidden group transition-all duration-300 ease-out border border-transparent hover:border-[hsl(var(--border))] hover:translate-y-[-2px] hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)] before:absolute before:inset-0 before:bg-[hsl(var(--button)/0.03)] before:opacity-0 before:transition-opacity group-hover:before:opacity-100">
+        <div className="w-1/12 mr-3 absolute">
           <UpvoteButton
             type="thread"
             id={thread_id}
@@ -102,7 +102,7 @@ export default function ThreadCard({
           />
         </div>
         <div
-          className="w-9/12 flex flex-col pt-4 pb-2"
+          className="ml-20 w-9/12 flex flex-col pt-4 pb-2"
           onClick={openDetailPage}
         >
           <div className="">

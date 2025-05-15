@@ -4,6 +4,7 @@ interface Subthread {
     id: number;
     username: string | null;
     profile_picture: string;
+    is_expert: boolean;
   };
   content: string;
   up_vote: number;

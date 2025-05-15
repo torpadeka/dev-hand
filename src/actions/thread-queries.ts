@@ -217,6 +217,7 @@ export async function getThreadDetail(threadId: number) {
       subthread_id: subThreadsTable.subthread_id,
       subthread_userid: subThreadsTable.user_id,
       subthread_username: sql<string>`(SELECT username FROM ${usersTable} WHERE ${usersTable.user_id} = ${subThreadsTable.user_id})`,
+      subthread_is_expert: sql<string>`(SELECT is_expert FROM ${usersTable} WHERE ${usersTable.user_id} = ${subThreadsTable.user_id})`,
       subthread_content: subThreadsTable.content,
       subhtread_up_vote: sql<number>`
         (SELECT COUNT(*) 
@@ -238,6 +239,7 @@ export async function getThreadDetail(threadId: number) {
     .groupBy(
       threadsTable.thread_id,
       usersTable.username,
+      usersTable.is_expert,
       subThreadsTable.subthread_id,
       subThreadsTable.user_id,
       subThreadsTable.content,
@@ -258,6 +260,7 @@ export async function getThreadDetail(threadId: number) {
           id: sub.subthread_userid ?? 0,
           username: sub.subthread_username ?? "Unknown",
           profile_picture: sub.user_profile ?? "",
+          is_expert: sub.subthread_is_expert ?? false,
         },
         content: sub.subthread_content ?? "No content available.",
         up_vote: sub.subhtread_up_vote ?? 0,
@@ -274,7 +277,8 @@ export async function getThreadDetail(threadId: number) {
     user: {
       id: result[0]?.user_id ?? 0,
       username: result[0]?.username ?? "Unknown",
-      profile_picture: result[0]?.user_profile ?? ""
+      profile_picture: result[0]?.user_profile ?? "",
+      is_expert: result[0]?.subthread_is_expert == "TRUE" ? true : false,
     },
     categories: result[0]?.categories ?? [], // ✅ Already aggregated in SQL
     title: result[0]?.title ?? "Untitled Thread",
@@ -294,6 +298,7 @@ export async function getRepliesForSubthread(subthreadId: number) {
       reply_id: repliesTable.reply_id,
       user_id: repliesTable.user_id,
       username: usersTable.username,
+      is_expert: usersTable.is_expert,
       profile_picture: userProfilesTable.profile_picture,
       content: repliesTable.content,
       created_at: repliesTable.created_at,
@@ -310,6 +315,7 @@ export async function getRepliesForSubthread(subthreadId: number) {
     user: {
       id: reply.user_id ?? null,
       username: reply.username ?? "Unknown",
+      is_expert: reply.is_expert ?? false,
       profile_picture: reply.profile_picture ?? "",
     },
     content: reply.content,

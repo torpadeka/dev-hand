@@ -166,7 +166,7 @@ export default function ExpertApplicationsPage() {
       {/* Filters and Search */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-foreground)/0.5)]" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-foreground/50" />
           <Input
             placeholder="Search by name or GitHub..."
             value={searchTerm}
@@ -197,9 +197,9 @@ export default function ExpertApplicationsPage() {
       ) : filteredApplications.length === 0 ? (
         // Empty State
         <div className="bg-primary border border-border rounded-lg p-8 text-center">
-          <User className="h-12 w-12 mx-auto text-foreground)/0.3)]" />
+          <User className="h-12 w-12 mx-auto text-foreground/30" />
           <h3 className="mt-4 text-lg font-medium">No applications found</h3>
-          <p className="mt-2 text-foreground)/0.7)]">
+          <p className="mt-2 text-foreground/70">
             {searchTerm || statusFilter !== "all"
               ? "Try adjusting your search or filter criteria"
               : "There are no expert applications yet"}
@@ -247,7 +247,7 @@ export default function ExpertApplicationsPage() {
                 {filteredApplications.map((app) => (
                   <TableRow
                     key={app.application_id}
-                    className="border-t border-border hover:bg-background)/0.3)]"
+                    className="border-t border-border hover:bg-background/30"
                   >
                     <TableCell className="font-medium">
                       {app.full_name}
@@ -278,7 +278,7 @@ export default function ExpertApplicationsPage() {
                     <TableCell className="text-right">
                       <Button
                         onClick={() => handleViewMore(app.application_id)}
-                        className="bg-button text-button-foreground hover:bg-button)/0.9)]"
+                        className="bg-button text-button-foreground hover:bg-button/90"
                         size="sm"
                       >
                         View Details

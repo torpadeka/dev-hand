@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { expertApplicationsTable } from "@/schema";
+import { expertApplicationsTable, usersTable } from "@/schema";
 import { eq } from "drizzle-orm";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
 
-export async function PATCH(request: Request, { params }: { params: { applicationId: string } }) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: { applicationId: string } }
+) {
   const applicationId = parseInt(params.applicationId);
   const body = await request.json();
   const { status } = body;
@@ -21,6 +24,20 @@ export async function PATCH(request: Request, { params }: { params: { applicatio
       .update(expertApplicationsTable)
       .set({ status })
       .where(eq(expertApplicationsTable.application_id, applicationId));
+
+    if (status === "Approved") {
+      const [application] = await db
+        .select({ user_id: expertApplicationsTable.user_id })
+        .from(expertApplicationsTable)
+        .where(eq(expertApplicationsTable.application_id, applicationId));
+
+      if (application?.user_id) {
+        await db
+          .update(usersTable)
+          .set({ is_expert: true })
+          .where(eq(usersTable.user_id, application.user_id));
+      }
+    }
 
     return NextResponse.json({ message: "Status updated successfully" });
   } catch (error) {

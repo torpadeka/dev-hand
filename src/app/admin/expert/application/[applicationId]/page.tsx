@@ -111,10 +111,8 @@ export default function ApplicationDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-12 w-12 animate-spin text-[hsl(var(--button))]" />
-        <p className="mt-4 text-[hsl(var(--foreground))]">
-          Loading application details...
-        </p>
+        <Loader2 className="h-12 w-12 animate-spin text-button" />
+        <p className="mt-4 text-foreground">Loading application details...</p>
       </div>
     );
   }
@@ -122,11 +120,11 @@ export default function ApplicationDetailPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="text-[hsl(var(--destructive))] text-center">
+        <div className="text-destructive text-center">
           <XCircle className="h-12 w-12 mx-auto mb-4" />
           <p className="text-xl font-semibold">{error}</p>
           <Button
-            className="mt-4 bg-[hsl(var(--button))] text-[hsl(var(--button-foreground))]"
+            className="mt-4 bg-button text-button-foreground"
             onClick={() => router.push("/admin/expert/application")}
           >
             Back to Applications
@@ -139,11 +137,11 @@ export default function ApplicationDetailPage() {
   if (!application) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="text-[hsl(var(--foreground))] text-center">
+        <div className="text-foreground text-center">
           <Info className="h-12 w-12 mx-auto mb-4" />
           <p className="text-xl font-semibold">Application not found</p>
           <Button
-            className="mt-4 bg-[hsl(var(--button))] text-[hsl(var(--button-foreground))]"
+            className="mt-4 bg-button text-button-foreground"
             onClick={() => router.push("/admin/expert/application")}
           >
             Back to Applications
@@ -156,16 +154,16 @@ export default function ApplicationDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Approved":
-        return "bg-[hsl(var(--chart-2))] text-[hsl(var(--secondary))]";
+        return "bg-chart-2 text-secondary";
       case "Rejected":
-        return "bg-[hsl(var(--chart-1))] text-[hsl(var(--secondary))]";
+        return "bg-chart-1 text-secondary";
       default:
-        return "bg-[hsl(var(--chart-5))] text-[hsl(var(--secondary-foreground))]";
+        return "bg-chart-5 text-secondary-foreground";
     }
   };
 
   return (
-    <div className="container mx-auto p-5 text-[hsl(var(--foreground))]">
+    <div className="container mx-auto p-5 text-foreground">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Application Details</h1>
         <Badge className={`text-sm px-3 py-1 ${getStatusColor(status)}`}>
@@ -175,7 +173,7 @@ export default function ApplicationDetailPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Personal Information */}
-        <Card className="bg-[hsl(var(--primary))] border-[hsl(var(--border))] md:col-span-1">
+        <Card className="bg-primary border-border md:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
@@ -184,21 +182,21 @@ export default function ApplicationDetailPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="text-sm text-[hsl(var(--foreground))] opacity-70 mb-1">
+              <h3 className="text-sm text-foreground opacity-70 mb-1">
                 Full Name
               </h3>
               <p className="font-medium">{application.full_name}</p>
             </div>
 
             <div>
-              <h3 className="text-sm text-[hsl(var(--foreground))] opacity-70 mb-1">
+              <h3 className="text-sm text-foreground opacity-70 mb-1">
                 GitHub
               </h3>
               <a
                 href={application.github_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-[hsl(var(--button))] hover:underline"
+                className="flex items-center gap-1 text-button hover:underline"
               >
                 <Github className="h-4 w-4" />
                 {application.github_link.replace(
@@ -210,11 +208,11 @@ export default function ApplicationDetailPage() {
             </div>
 
             <div>
-              <h3 className="text-sm text-[hsl(var(--foreground))] opacity-70 mb-1">
+              <h3 className="text-sm text-foreground opacity-70 mb-1">
                 Applied On
               </h3>
               <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4 text-[hsl(var(--chart-3))]" />
+                <Calendar className="h-4 w-4 text-chart-3" />
                 {new Date(application.created_at).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "short",
@@ -224,14 +222,14 @@ export default function ApplicationDetailPage() {
             </div>
 
             <div>
-              <h3 className="text-sm text-[hsl(var(--foreground))] opacity-70 mb-1">
+              <h3 className="text-sm text-foreground opacity-70 mb-1">
                 Categories
               </h3>
               <div className="flex flex-wrap gap-2 mt-1">
                 {application.categories.map((category, index) => (
                   <Badge
                     key={index}
-                    className="bg-[hsl(var(--chart-3)/0.2)] text-[hsl(var(--chart-3))] border border-[hsl(var(--chart-3)/0.3)]"
+                    className="bg-chart-3/20 text-chart-3 border border-chart-3/30"
                   >
                     <Tag className="h-3 w-3 mr-1" />
                     {category}
@@ -243,7 +241,7 @@ export default function ApplicationDetailPage() {
         </Card>
 
         {/* Application Details */}
-        <Card className="bg-[hsl(var(--primary))] border-[hsl(var(--border))] md:col-span-2">
+        <Card className="bg-primary border-border md:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -255,29 +253,27 @@ export default function ApplicationDetailPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h3 className="text-sm font-medium text-[hsl(var(--button))] mb-2">
-                About
-              </h3>
-              <p className="text-[hsl(var(--foreground))] bg-[hsl(var(--background))] p-3 rounded-md">
+              <h3 className="text-sm font-medium text-button mb-2">About</h3>
+              <p className="text-foreground bg-background p-3 rounded-md">
                 {application.about_self}
               </p>
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-[hsl(var(--button))] mb-2">
+              <h3 className="text-sm font-medium text-button mb-2">
                 Motivation
               </h3>
-              <p className="text-[hsl(var(--foreground))] bg-[hsl(var(--background))] p-3 rounded-md">
+              <p className="text-foreground bg-background p-3 rounded-md">
                 {application.reason}
               </p>
             </div>
 
             {application.additional_info && (
               <div>
-                <h3 className="text-sm font-medium text-[hsl(var(--button))] mb-2">
+                <h3 className="text-sm font-medium text-button mb-2">
                   Additional Information
                 </h3>
-                <p className="text-[hsl(var(--foreground))] bg-[hsl(var(--background))] p-3 rounded-md">
+                <p className="text-foreground bg-background p-3 rounded-md">
                   {application.additional_info}
                 </p>
               </div>
@@ -286,7 +282,7 @@ export default function ApplicationDetailPage() {
         </Card>
 
         {/* Certificates */}
-        <Card className="bg-[hsl(var(--primary))] border-[hsl(var(--border))] md:col-span-3">
+        <Card className="bg-primary border-border md:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -305,23 +301,23 @@ export default function ApplicationDetailPage() {
                     href={cert.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-4 bg-[hsl(var(--background))] rounded-lg hover:bg-[hsl(var(--background)/0.8)] transition-colors"
+                    className="flex items-center gap-3 p-4 bg-background rounded-lg hover:bg-background/80 transition-colors"
                   >
-                    <div className="bg-[hsl(var(--chart-4)/0.2)] p-2 rounded-full">
-                      <FileText className="h-5 w-5 text-[hsl(var(--chart-4))]" />
+                    <div className="bg-chart-4/20 p-2 rounded-full">
+                      <FileText className="h-5 w-5 text-chart-4" />
                     </div>
                     <div className="flex-1 truncate">
                       <p className="font-medium truncate">{cert.description}</p>
-                      <p className="text-xs text-[hsl(var(--foreground)/0.7)]">
+                      <p className="text-xs text-foreground/70">
                         View certificate
                       </p>
                     </div>
-                    <ExternalLink className="h-4 w-4 flex-shrink-0 text-[hsl(var(--foreground)/0.5)]" />
+                    <ExternalLink className="h-4 w-4 flex-shrink-0 text-foreground/50" />
                   </a>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6 text-[hsl(var(--foreground)/0.7)]">
+              <div className="text-center py-6 text-foreground/70">
                 <FileText className="h-12 w-12 mx-auto mb-2 opacity-30" />
                 <p>No certificates uploaded</p>
               </div>
@@ -335,7 +331,7 @@ export default function ApplicationDetailPage() {
         <Button
           onClick={() => router.push("/admin/expert/application")}
           variant="outline"
-          className="border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--background))]"
+          className="border-border text-foreground hover:bg-background"
         >
           Back to Applications
         </Button>
@@ -343,7 +339,7 @@ export default function ApplicationDetailPage() {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              className="bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] hover:bg-[hsl(var(--destructive)/0.9)]"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={status === "Rejected" || isUpdating}
             >
               {isUpdating ? (
@@ -354,7 +350,7 @@ export default function ApplicationDetailPage() {
               Reject Application
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="bg-[hsl(var(--primary))] border-[hsl(var(--border))]">
+          <AlertDialogContent className="bg-primary border-border">
             <AlertDialogHeader>
               <AlertDialogTitle>Reject Application</AlertDialogTitle>
               <AlertDialogDescription>
@@ -363,11 +359,11 @@ export default function ApplicationDetailPage() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
+              <AlertDialogCancel className="border-border text-foreground">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                className="bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))]"
+                className="bg-destructive text-destructive-foreground"
                 onClick={() => updateStatus("Rejected")}
               >
                 Reject
@@ -379,7 +375,7 @@ export default function ApplicationDetailPage() {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              className="bg-[hsl(var(--chart-2))] text-white hover:bg-[hsl(var(--chart-2)/0.9)]"
+              className="bg-chart-2 text-white hover:bg-chart-2/90"
               disabled={status === "Approved" || isUpdating}
             >
               {isUpdating ? (
@@ -390,7 +386,7 @@ export default function ApplicationDetailPage() {
               Approve Application
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="bg-[hsl(var(--primary))] border-[hsl(var(--border))]">
+          <AlertDialogContent className="bg-primary border-border">
             <AlertDialogHeader>
               <AlertDialogTitle>Approve Application</AlertDialogTitle>
               <AlertDialogDescription>
@@ -399,11 +395,11 @@ export default function ApplicationDetailPage() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
+              <AlertDialogCancel className="border-border text-foreground">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                className="bg-[hsl(var(--chart-2))] text-white"
+                className="bg-chart-2 text-white"
                 onClick={() => updateStatus("Approved")}
               >
                 Approve

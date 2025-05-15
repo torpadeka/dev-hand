@@ -31,7 +31,7 @@ export default function AnswerCard({ subThread, user }: AnswerCardProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
-  const isExpert = true;
+  const isExpert = subThread.user.is_expert;
 
   const handleSubmit = async () => {
     if (savedContent.length < 25) {

@@ -17,6 +17,7 @@ import { createSubThread } from "@/actions/thread-queries";
 import HomeSidebarThreads from "@/components/HomeSidebarThreads";
 import { IoIosBonfire } from "react-icons/io";
 import { Skeleton } from "@/components/ui/skeleton";
+import RelatedResourcesWidget from "@/components/RelatedResources";
 
 interface ThreadProps {
   thread: Thread;

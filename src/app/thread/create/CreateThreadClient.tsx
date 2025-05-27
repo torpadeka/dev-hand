@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { askAzureOpenAI } from "@/app/chatbot/function";
+import AdvancedSpinnerLoading from "@/components/Loading";
 
 interface CreateThreadProps {
   userID: number;
@@ -36,6 +37,7 @@ export default function CreateThreadClient({
   const [hasError, setHasError] = useState(true);
   const [triggerValidation, setTriggerValidation] = useState(false);
   const [allowAIAnswers, setAllowAIAnswers] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const categorySelectorRef = useRef<{
     getSelectedCategories: () => void;
@@ -84,27 +86,36 @@ export default function CreateThreadClient({
   }, [savedCategories, savedContent, title, triggerValidation]);
 
   const handleSubmission = async () => {
-    console.log(userID);
-    const threadId: number = await createThread(
-      userID,
-      title,
-      savedContent,
-      "question",
-      0,
-      savedCategories
-    );
-    console.log("Question submitted successfully!");
-    if (allowAIAnswers) {
-      const response = await askAzureOpenAI(savedContent);
-      await createSubThread(threadId || 0, 0, response, true);
-      console.log(savedContent);
+    try {
+      setIsLoading(true);
+      console.log(userID);
+      const threadId: number = await createThread(
+        userID,
+        title,
+        savedContent,
+        "question",
+        0,
+        savedCategories
+      );
+      console.log("Question submitted successfully!");
+      if (allowAIAnswers) {
+        const response = await askAzureOpenAI(savedContent);
+        await createSubThread(threadId || 0, 0, response, true);
+        console.log(savedContent);
+      }
+    } finally {
+      setIsLoading(false);
+      redirect("/thread/create/success");
     }
-    redirect("/thread/create/success");
   };
 
   return (
     <div className="">
       <Navbar />
+      <AdvancedSpinnerLoading
+        isLoading={isLoading}
+        onCancel={() => setIsLoading(false)}
+      />
       <div className="text-center m-5 text-primary-foreground flex flex-col">
         <span className="font-bold text-2xl">
           Confused? Get guidance from the community!

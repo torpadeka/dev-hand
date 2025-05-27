@@ -5,8 +5,18 @@ import Navbar from "@/components/Navbar";
 import RichTextEditorComponent from "@/components/RichTextEditorComponent";
 import CategorySelector from "@/components/CategorySelector";
 import { SaveConfirmationDialog } from "@/components/SaveConfirmationDialog";
-import { createThread } from "@/actions/thread-queries";
+import { createSubThread, createThread } from "@/actions/thread-queries";
 import { redirect } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Bot, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { askAzureOpenAI } from "@/app/chatbot/function";
 
 interface CreateThreadProps {
   userID: number;
@@ -25,6 +35,7 @@ export default function CreateThreadClient({
   const [errorCategory, setErrorCategory] = useState("");
   const [hasError, setHasError] = useState(true);
   const [triggerValidation, setTriggerValidation] = useState(false);
+  const [allowAIAnswers, setAllowAIAnswers] = useState(true);
 
   const categorySelectorRef = useRef<{
     getSelectedCategories: () => void;
@@ -74,7 +85,7 @@ export default function CreateThreadClient({
 
   const handleSubmission = async () => {
     console.log(userID);
-    await createThread(
+    const threadId: number = await createThread(
       userID,
       title,
       savedContent,
@@ -83,6 +94,11 @@ export default function CreateThreadClient({
       savedCategories
     );
     console.log("Question submitted successfully!");
+    if (allowAIAnswers) {
+      const response = await askAzureOpenAI(savedContent);
+      await createSubThread(threadId || 0, 0, response, true);
+      console.log(savedContent);
+    }
     redirect("/thread/create/success");
   };
 
@@ -127,6 +143,50 @@ export default function CreateThreadClient({
               </div>
             </div>
           </div>
+
+          {/* AI Answer Preference Section */}
+          <div className="mt-6 p-4 bg-background rounded-lg border border-border">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="ai-answers"
+                  checked={allowAIAnswers}
+                  onCheckedChange={(checked: boolean) =>
+                    setAllowAIAnswers(checked as boolean)
+                  }
+                  className="border-border data-[state=checked]:bg-button data-[state=checked]:border-button"
+                />
+                <Label
+                  htmlFor="ai-answers"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                >
+                  <Bot className="h-4 w-4 text-chart-3" />
+                  Allow AI to answer this question
+                </Label>
+              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-foreground/60 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-primary border-border max-w-xs">
+                    <p className="text-sm">
+                      When enabled, our AI assistant can provide instant answers
+                      to your question alongside community responses. This can
+                      help you get faster solutions while still receiving human
+                      insights.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <p className="text-xs text-foreground/70 mt-2 ml-6">
+              {allowAIAnswers
+                ? "AI will provide instant answers along with community responses"
+                : "Only community members will be able to answer your question"}
+            </p>
+          </div>
+
           <div className="hover:cursor-text mt-5 flex gap-x-10">
             <a
               href="#_"

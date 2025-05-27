@@ -11,7 +11,7 @@ export async function createThread(
   thread_type: string,
   up_vote: number,
   categoryNames: string[]
-): Promise<void> {
+): Promise<number> {
   const newThread = await db.insert(threadsTable).values({
     user_id:user_id,
     title:title,
@@ -30,7 +30,7 @@ export async function createThread(
   await db.insert(threadCategoriesTable).values(
     categoryIds.map(cat => ({ thread_id: threadId, category_id: cat.category_id }))
   );
-
+  return threadId;
   }
 
   // Wihout Filtering
@@ -331,7 +331,7 @@ export async function createSubThread(threadId: number, userId: number, content:
       thread_id: threadId,
       user_id: userId,
       content:content,
-      is_ai_generated: false,
+      is_ai_generated: is_ai_generated,
       up_vote: 0,
       created_at: new Date(),
       updated_at: new Date(),

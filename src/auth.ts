@@ -101,18 +101,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     callbacks: {
         // This callback is called whenever a JSON Web Token is created or updated.
-        async jwt({ token, user }) {
-            // When the user is first created, attach the user's ID
-            if (user) {
-                token.id = user.id;
+        async jwt({ token, user, account }) {
+            if (account && user) {
+                // Check for account to know if it's an OAuth sign-in
+                console.log("JWT User from provider:", JSON.stringify(user));
+                console.log(
+                    "JWT Account from provider:",
+                    JSON.stringify(account)
+                );
+
+                // For all providers, we want token.id to be our internal DB user ID string
+                if (user.email) {
+                    const dbUser = await getUserByEmail(user.email); // Fetch user from your DB
+                    if (dbUser) {
+                        token.id = dbUser.user_id.toString(); // Use your DB user_id
+                        token.email = dbUser.email;
+                        token.name = dbUser.username; // Or dbUser.name if you have it
+                        // Add other DB user fields to token if needed
+                    } else {
+                        // This case should ideally be handled by the signIn callback creating the user.
+                        // If dbUser is not found here after signIn, it's an issue.
+                        console.error(
+                            "JWT: DB user not found for email:",
+                            user.email
+                        );
+                        // You might prevent token creation or handle as an error
+                        return {}; // Return an empty token or throw to indicate failure
+                    }
+                }
             }
+            // This part is for subsequent JWT reads, not initial creation with 'user' object
+            // 'token.id' should already be set correctly from the above block on first sign-in.
             return token;
         },
-        // This callback is called whenever a session is checked.
         async session({ session, token }) {
-            // Attach the user ID from the token to the session
-            if (token && session.user) {
-                session.user.id = token.id as string;
+            if (token?.id && session.user) {
+                session.user.id = token.id as string; // This will be your DB user_id string
+                session.user.email = token.email as string;
+                session.user.name = token.name as string;
+                // Assign other properties from token to session.user
             }
             return session;
         },

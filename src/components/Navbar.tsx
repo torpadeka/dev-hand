@@ -104,72 +104,7 @@ export default function Navbar() {
         <NavbarAvatar user={user} />
       </div>
 
-      {/* Mobile Navigation */}
-      <div className="flex items-center gap-4 md:hidden">
-        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            className="bg-primary border-l border-border p-0"
-          >
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-4 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 overflow-hidden rounded-md bg-logo/10 flex items-center justify-center">
-                    <Image
-                      src="/dev-hand.svg"
-                      width={24}
-                      height={24}
-                      alt="Dev Hand logo"
-                    />
-                  </div>
-                  <div className="font-bold text-lg text-logo">Dev Hand</div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-
-              <div className="flex flex-col p-4 space-y-4">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className="text-foreground hover:text-button py-2 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-                <Link
-                  href="/expert/apply"
-                  className="flex items-center gap-2 text-foreground hover:text-button py-2 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Award className="h-4 w-4" />
-                  Apply as Expert
-                </Link>
-              </div>
-
-              <div className="mt-auto p-4 border-t border-border">
-                <div className="flex items-center gap-3">
-                  <NavbarAvatar user={user} />
-                </div>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-        <NavbarAvatar user={user} />
-      </div>
+      
     </div>
   );
 }

@@ -14,10 +14,11 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
 
 export async function GET(
-    request: NextRequest,
-    { params }: { params: { applicationId: string } }
+    request: Request,
+    { params }: { params: Promise<{ applicationId: string }> }
 ) {
-    const applicationId = parseInt(params.applicationId);
+    const parameters = await params;
+    const applicationId = parseInt(parameters.applicationId);
 
     try {
         // Fetch application main details

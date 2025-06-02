@@ -8,15 +8,15 @@ import {
     categoriesTable,
 } from "@/schema";
 import { eq } from "drizzle-orm";
+import type { NextRequest } from "next/server";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
 
 export async function GET(
-    request: Request,
-    context: { params: { applicationId: string } }
+    request: NextRequest,
+    { params }: { params: { applicationId: string } }
 ) {
-    const { params } = context;
     const applicationId = parseInt(params.applicationId);
 
     try {

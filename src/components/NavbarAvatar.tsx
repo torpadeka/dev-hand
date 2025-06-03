@@ -97,7 +97,10 @@ export default function NavbarAvatar({ user }: NavbarAvatarProps) {
                     </div>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className="flex items-center gap-2 py-2 cursor-pointer hover:bg-background">
+                <DropdownMenuItem
+                    className="flex items-center gap-2 py-2 cursor-pointer hover:bg-background"
+                    onClick={() => router.push("/subscribe")}
+                >
                     <CreditCard className="h-4 w-4 text-foreground/70" />
                     <span>Subscription</span>
                 </DropdownMenuItem>
